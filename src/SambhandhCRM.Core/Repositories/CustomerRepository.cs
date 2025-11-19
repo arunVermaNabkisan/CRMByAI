@@ -26,7 +26,7 @@ public class CustomerRepository : ICustomerRepository
         return await connection.QueryAsync<Customer>(sql);
     }
 
-    public async Task<Customer?> GetByIdAsync(Guid id)
+    public async Task<Customer?> GetByIdAsync(long id)
     {
         using var connection = _connectionFactory.CreateConnection();
         var sql = @"
@@ -36,7 +36,7 @@ public class CustomerRepository : ICustomerRepository
         return await connection.QueryFirstOrDefaultAsync<Customer>(sql, new { Id = id });
     }
 
-    public async Task<Customer?> GetByIdWithDetailsAsync(Guid id)
+    public async Task<Customer?> GetByIdWithDetailsAsync(long id)
     {
         using var connection = _connectionFactory.CreateConnection();
 
@@ -100,7 +100,7 @@ public class CustomerRepository : ICustomerRepository
         return await connection.QueryAsync<Customer>(sql, new { Status = status });
     }
 
-    public async Task<Guid> CreateAsync(Customer customer)
+    public async Task<long> CreateAsync(Customer customer)
     {
         using var connection = _connectionFactory.CreateConnection();
 
@@ -193,7 +193,7 @@ public class CustomerRepository : ICustomerRepository
         return rowsAffected > 0;
     }
 
-    public async Task<bool> DeleteAsync(Guid id)
+    public async Task<bool> DeleteAsync(long id)
     {
         using var connection = _connectionFactory.CreateConnection();
         var sql = @"

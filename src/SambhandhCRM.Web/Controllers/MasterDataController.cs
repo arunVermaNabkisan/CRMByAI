@@ -71,7 +71,7 @@ public class MasterDataController : ControllerBase
     /// </summary>
     [HttpPut("business-segments/{id}")]
     [ProducesResponseType(typeof(ApiResponse<BusinessSegmentResponse>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> UpdateBusinessSegment(Guid id, [FromBody] CreateBusinessSegmentRequest request)
+    public async Task<IActionResult> UpdateBusinessSegment(long id, [FromBody] CreateBusinessSegmentRequest request)
     {
         try
         {
@@ -93,7 +93,7 @@ public class MasterDataController : ControllerBase
     /// </summary>
     [HttpDelete("business-segments/{id}")]
     [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> DeleteBusinessSegment(Guid id)
+    public async Task<IActionResult> DeleteBusinessSegment(long id)
     {
         try
         {
@@ -199,7 +199,7 @@ public class MasterDataController : ControllerBase
     /// </summary>
     [HttpPut("{id}")]
     [ProducesResponseType(typeof(ApiResponse<MasterDataResponse>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> UpdateMasterData(Guid id, [FromBody] CreateMasterDataRequest request)
+    public async Task<IActionResult> UpdateMasterData(long id, [FromBody] CreateMasterDataRequest request)
     {
         try
         {
@@ -222,7 +222,7 @@ public class MasterDataController : ControllerBase
     /// </summary>
     [HttpDelete("{id}")]
     [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> DeleteMasterData(Guid id)
+    public async Task<IActionResult> DeleteMasterData(long id)
     {
         try
         {

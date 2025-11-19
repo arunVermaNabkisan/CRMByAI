@@ -4,7 +4,7 @@ namespace SambhandhCRM.Core.DTOs.Customer;
 
 public class CustomerResponse
 {
-    public Guid Id { get; set; }
+    public long Id { get; set; }
     public LegalConstitution LegalConstitution { get; set; }
     public string EntityName { get; set; } = string.Empty;
     public string? PANNumber { get; set; }

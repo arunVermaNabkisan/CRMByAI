@@ -61,7 +61,7 @@ public class LeadsController : ControllerBase
     [HttpGet("{id}")]
     [ProducesResponseType(typeof(ApiResponse<LeadResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<LeadResponse>), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetLeadById(Guid id)
+    public async Task<IActionResult> GetLeadById(long id)
     {
         try
         {
@@ -91,7 +91,7 @@ public class LeadsController : ControllerBase
             // TODO: Validate assigned user exists
             // TODO: Create lead entity and save to database
 
-            return CreatedAtAction(nameof(GetLeadById), new { id = Guid.NewGuid() },
+            return CreatedAtAction(nameof(GetLeadById), new { id = 0L },
                 ApiResponse<LeadResponse>.SuccessResponse(
                     new LeadResponse(), "Lead created successfully"));
         }
@@ -109,7 +109,7 @@ public class LeadsController : ControllerBase
     [HttpPut("{id}")]
     [ProducesResponseType(typeof(ApiResponse<LeadResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<LeadResponse>), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> UpdateLead(Guid id, [FromBody] UpdateLeadRequest request)
+    public async Task<IActionResult> UpdateLead(long id, [FromBody] UpdateLeadRequest request)
     {
         try
         {
@@ -161,7 +161,7 @@ public class LeadsController : ControllerBase
     /// </summary>
     [HttpGet("{id}/status-history")]
     [ProducesResponseType(typeof(ApiResponse<List<object>>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetLeadStatusHistory(Guid id)
+    public async Task<IActionResult> GetLeadStatusHistory(long id)
     {
         try
         {
@@ -237,7 +237,7 @@ public class LeadsController : ControllerBase
     /// </summary>
     [HttpPatch("{id}/assign")]
     [ProducesResponseType(typeof(ApiResponse<LeadResponse>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> AssignLead(Guid id, [FromBody] object request)
+    public async Task<IActionResult> AssignLead(long id, [FromBody] object request)
     {
         try
         {

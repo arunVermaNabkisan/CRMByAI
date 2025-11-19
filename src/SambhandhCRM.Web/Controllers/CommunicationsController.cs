@@ -27,8 +27,8 @@ public class CommunicationsController : ControllerBase
     public async Task<IActionResult> GetCommunications(
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 20,
-        [FromQuery] Guid? customerId = null,
-        [FromQuery] Guid? leadId = null,
+        [FromQuery] long? customerId = null,
+        [FromQuery] long? leadId = null,
         [FromQuery] CommunicationType? communicationType = null,
         [FromQuery] DateTime? fromDate = null,
         [FromQuery] DateTime? toDate = null)
@@ -60,7 +60,7 @@ public class CommunicationsController : ControllerBase
     [HttpGet("{id}")]
     [ProducesResponseType(typeof(ApiResponse<CommunicationLogResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<CommunicationLogResponse>), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetCommunicationById(Guid id)
+    public async Task<IActionResult> GetCommunicationById(long id)
     {
         try
         {
@@ -89,7 +89,7 @@ public class CommunicationsController : ControllerBase
             // TODO: Get logged in user ID
             // TODO: Create communication log entity and save to database
 
-            return CreatedAtAction(nameof(GetCommunicationById), new { id = Guid.NewGuid() },
+            return CreatedAtAction(nameof(GetCommunicationById), new { id = 0L },
                 ApiResponse<CommunicationLogResponse>.SuccessResponse(
                     new CommunicationLogResponse(), "Communication logged successfully"));
         }
@@ -107,7 +107,7 @@ public class CommunicationsController : ControllerBase
     [HttpGet("customer/{customerId}/history")]
     [ProducesResponseType(typeof(ApiResponse<PagedResponse<CommunicationLogResponse>>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetCustomerCommunicationHistory(
-        Guid customerId,
+        long customerId,
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 20,
         [FromQuery] CommunicationType? communicationType = null,
@@ -140,7 +140,7 @@ public class CommunicationsController : ControllerBase
     /// </summary>
     [HttpGet("lead/{leadId}/history")]
     [ProducesResponseType(typeof(ApiResponse<List<CommunicationLogResponse>>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetLeadCommunicationHistory(Guid leadId)
+    public async Task<IActionResult> GetLeadCommunicationHistory(long leadId)
     {
         try
         {
@@ -208,7 +208,7 @@ public class CommunicationsController : ControllerBase
 
             var result = new
             {
-                CampaignId = Guid.NewGuid(),
+                CampaignId = 0L,
                 TotalRecipients = 0,
                 SentCount = 0,
                 FailedCount = 0,
@@ -242,7 +242,7 @@ public class CommunicationsController : ControllerBase
 
             var result = new
             {
-                CampaignId = Guid.NewGuid(),
+                CampaignId = 0L,
                 TotalRecipients = 0,
                 SentCount = 0,
                 FailedCount = 0,
@@ -264,7 +264,7 @@ public class CommunicationsController : ControllerBase
     /// </summary>
     [HttpGet("campaigns/{campaignId}/status")]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetCampaignStatus(Guid campaignId)
+    public async Task<IActionResult> GetCampaignStatus(long campaignId)
     {
         try
         {

@@ -4,6 +4,6 @@ namespace SambhandhCRM.Core.DTOs.Customer;
 
 public class UpdateCustomerRequest : CreateCustomerRequest
 {
-    public Guid Id { get; set; }
+    public long Id { get; set; }
     public CustomerStatus Status { get; set; }
 }

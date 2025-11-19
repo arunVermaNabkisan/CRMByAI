@@ -2,7 +2,7 @@ namespace SambhandhCRM.Core.DTOs.ContactPerson;
 
 public class ContactPersonResponse
 {
-    public Guid Id { get; set; }
+    public long Id { get; set; }
     public string FullName { get; set; } = string.Empty;
     public string MobileNumber { get; set; } = string.Empty;
     public string? Email { get; set; }
@@ -14,7 +14,7 @@ public class ContactPersonResponse
 
 public class CustomerRelationshipDto
 {
-    public Guid CustomerId { get; set; }
+    public long CustomerId { get; set; }
     public string CustomerName { get; set; } = string.Empty;
     public string RoleInOrganization { get; set; } = string.Empty;
     public bool IsDecisionMaker { get; set; }

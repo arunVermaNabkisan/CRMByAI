@@ -4,7 +4,7 @@ namespace SambhandhCRM.Core.DTOs.Lead;
 
 public class CreateLeadRequest
 {
-    public Guid CustomerId { get; set; }
+    public long CustomerId { get; set; }
     public string LeadSource { get; set; } = string.Empty;
     public string? ReferralSource { get; set; }
     public string ProductInterest { get; set; } = string.Empty;

@@ -30,7 +30,7 @@ public class CustomersController : ControllerBase
         [FromQuery] string? searchTerm = null,
         [FromQuery] CustomerStatus? status = null,
         [FromQuery] LegalConstitution? legalConstitution = null,
-        [FromQuery] Guid? businessSegmentId = null)
+        [FromQuery] long? businessSegmentId = null)
     {
         try
         {
@@ -59,7 +59,7 @@ public class CustomersController : ControllerBase
     [HttpGet("{id}")]
     [ProducesResponseType(typeof(ApiResponse<CustomerDetailResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<CustomerDetailResponse>), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetCustomerById(Guid id)
+    public async Task<IActionResult> GetCustomerById(long id)
     {
         try
         {
@@ -90,7 +90,7 @@ public class CustomersController : ControllerBase
             // TODO: Create customer entity and save to database
 
             // TODO: Return created customer
-            return CreatedAtAction(nameof(GetCustomerById), new { id = Guid.NewGuid() },
+            return CreatedAtAction(nameof(GetCustomerById), new { id = 0L },
                 ApiResponse<CustomerDetailResponse>.SuccessResponse(
                     new CustomerDetailResponse(), "Customer created successfully"));
         }
@@ -108,7 +108,7 @@ public class CustomersController : ControllerBase
     [HttpPut("{id}")]
     [ProducesResponseType(typeof(ApiResponse<CustomerDetailResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<CustomerDetailResponse>), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> UpdateCustomer(Guid id, [FromBody] UpdateCustomerRequest request)
+    public async Task<IActionResult> UpdateCustomer(long id, [FromBody] UpdateCustomerRequest request)
     {
         try
         {
@@ -137,7 +137,7 @@ public class CustomersController : ControllerBase
     [HttpDelete("{id}")]
     [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> DeleteCustomer(Guid id)
+    public async Task<IActionResult> DeleteCustomer(long id)
     {
         try
         {

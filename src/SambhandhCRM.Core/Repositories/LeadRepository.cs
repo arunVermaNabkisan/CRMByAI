@@ -44,7 +44,7 @@ public class LeadRepository : ILeadRepository
         return leadDictionary.Values;
     }
 
-    public async Task<Lead?> GetByIdAsync(Guid id)
+    public async Task<Lead?> GetByIdAsync(long id)
     {
         using var connection = _connectionFactory.CreateConnection();
         var sql = @"
@@ -54,7 +54,7 @@ public class LeadRepository : ILeadRepository
         return await connection.QueryFirstOrDefaultAsync<Lead>(sql, new { Id = id });
     }
 
-    public async Task<Lead?> GetByIdWithDetailsAsync(Guid id)
+    public async Task<Lead?> GetByIdWithDetailsAsync(long id)
     {
         using var connection = _connectionFactory.CreateConnection();
         var sql = @"
@@ -82,7 +82,7 @@ public class LeadRepository : ILeadRepository
         return lead;
     }
 
-    public async Task<IEnumerable<Lead>> GetByCustomerIdAsync(Guid customerId)
+    public async Task<IEnumerable<Lead>> GetByCustomerIdAsync(long customerId)
     {
         using var connection = _connectionFactory.CreateConnection();
         var sql = @"
@@ -153,7 +153,7 @@ public class LeadRepository : ILeadRepository
         return leadDictionary.Values;
     }
 
-    public async Task<Guid> CreateAsync(Lead lead)
+    public async Task<long> CreateAsync(Lead lead)
     {
         using var connection = _connectionFactory.CreateConnection();
 
@@ -216,7 +216,7 @@ public class LeadRepository : ILeadRepository
         return rowsAffected > 0;
     }
 
-    public async Task<bool> UpdateStatusAsync(Guid id, LeadStatus status)
+    public async Task<bool> UpdateStatusAsync(long id, LeadStatus status)
     {
         using var connection = _connectionFactory.CreateConnection();
 
@@ -236,7 +236,7 @@ public class LeadRepository : ILeadRepository
         return rowsAffected > 0;
     }
 
-    public async Task<bool> DeleteAsync(Guid id)
+    public async Task<bool> DeleteAsync(long id)
     {
         using var connection = _connectionFactory.CreateConnection();
         var sql = @"
