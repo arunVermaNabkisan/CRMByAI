@@ -201,12 +201,12 @@
         Navigation.NavigateTo("/contacts/create");
     }
 
-    private void ViewContact(Guid id)
+    private void ViewContact(long id)
     {
         Navigation.NavigateTo($"/contacts/{id}");
     }
 
-    private void EditContact(Guid id)
+    private void EditContact(long id)
     {
         Navigation.NavigateTo($"/contacts/edit/{id}");
     }

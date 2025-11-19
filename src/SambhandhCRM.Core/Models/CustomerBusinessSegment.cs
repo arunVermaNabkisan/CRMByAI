@@ -5,11 +5,11 @@ namespace SambhandhCRM.Core.Models;
 /// </summary>
 public class CustomerBusinessSegment
 {
-    public Guid CustomerId { get; set; }
+    public long CustomerId { get; set; }
     public Customer Customer { get; set; } = null!;
 
-    public Guid BusinessSegmentId { get; set; }
-    public BusinessSegment BusinessSegment { get; set; } = null!;
+    public long BusinessSegmentId { get; set; }
+    public BusinessSegment BusinessSegment { get; set; } = null!
 
     public bool IsPrimary { get; set; } = false;
     public DateTime AssignedAt { get; set; } = DateTime.UtcNow;

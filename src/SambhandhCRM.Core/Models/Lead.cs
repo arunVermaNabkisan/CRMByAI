@@ -13,6 +13,7 @@ public class Lead : BaseEntity
     // Lead Source & Classification
     public string LeadSource { get; set; } = string.Empty; // Direct Walk-in, Website, Referral, Campaign, Others
     public string? LeadSourceOther { get; set; }
+    public string? ReferralSource { get; set; } // Name of the referrer
     public long? ReferralPartyId { get; set; }
     public long? ReferralEmployeeId { get; set; }
     public long? CampaignId { get; set; }

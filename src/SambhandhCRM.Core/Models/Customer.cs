@@ -38,6 +38,21 @@ public class Customer : BaseEntity
     public DateTime? MCAVerificationDate { get; set; }
     public string? MCAData { get; set; }
 
+    // Address Information
+    public string? RegisteredAddress { get; set; }
+    public string? RegisteredPinCode { get; set; }
+    public string? OfficeAddress { get; set; }
+    public string? OfficePinCode { get; set; }
+    public string? CorrespondenceAddress { get; set; }
+    public string? CorrespondencePinCode { get; set; }
+
+    // Contact Information
+    public string? PrimaryPhone { get; set; }
+    public string? MobileNumber { get; set; }
+    public string? AlternativePhone { get; set; }
+    public string? PrimaryEmail { get; set; }
+    public string? SecondaryEmail { get; set; }
+
     // Website & Social Media
     public string? Website { get; set; }
     public string? LinkedInProfile { get; set; }
@@ -54,8 +69,14 @@ public class Customer : BaseEntity
     public long? AssignedToUserId { get; set; }
     public long? RegionalManagerId { get; set; }
 
+    // Banking Information
+    public string? PrimaryBankName { get; set; }
+    public int? BankingSinceYear { get; set; }
+
     // Other Relationships
     public string? OtherLenders { get; set; } // JSON array of lender names
+    public string? OtherLenderRelationships { get; set; }
+    public bool IsExistingNABKISANCustomer { get; set; }
 
     // Data Quality
     public int? DataQualityScore { get; set; }

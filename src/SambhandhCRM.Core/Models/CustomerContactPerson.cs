@@ -5,11 +5,11 @@ namespace SambhandhCRM.Core.Models;
 /// </summary>
 public class CustomerContactPerson
 {
-    public Guid CustomerId { get; set; }
+    public long CustomerId { get; set; }
     public Customer Customer { get; set; } = null!;
 
-    public Guid ContactPersonId { get; set; }
-    public ContactPerson ContactPerson { get; set; } = null!;
+    public long ContactPersonId { get; set; }
+    public ContactPerson ContactPerson { get; set; } = null!
 
     public string RoleInOrganization { get; set; } = string.Empty;
     public DateTime RoleStartDate { get; set; } = DateTime.UtcNow;
