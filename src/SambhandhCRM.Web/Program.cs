@@ -1,8 +1,20 @@
 using SambhandhCRM.Web.Components;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Components;
+using SambhandhCRM.Core.Data;
+using SambhandhCRM.Core.Repositories;
+using SambhandhCRM.Core.Repositories.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Add Database Services
+builder.Services.AddSingleton<IDbConnectionFactory, SqlConnectionFactory>();
+
+// Add Repositories
+builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
+builder.Services.AddScoped<ILeadRepository, LeadRepository>();
+builder.Services.AddScoped<ICommunicationLogRepository, CommunicationLogRepository>();
+builder.Services.AddScoped<IContactPersonRepository, ContactPersonRepository>();
 
 // Add services to the container.
 builder.Services.AddRazorComponents()

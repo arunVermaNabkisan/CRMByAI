@@ -1,8 +1,8 @@
 @page "/leads"
 @using SambhandhCRM.Core.Models
 @using SambhandhCRM.Core.Models.Enums
-@using System.Net.Http.Json
-@inject HttpClient Http
+@using SambhandhCRM.Core.Repositories.Interfaces
+@inject ILeadRepository LeadRepository
 @inject NavigationManager Navigation
 @rendermode InteractiveServer
 
@@ -222,9 +222,8 @@
         loading = true;
         try
         {
-            // Mock data - replace with actual API call
-            leads = new List<Lead>();
-            // leads = await Http.GetFromJsonAsync<List<Lead>>("/api/leads");
+            var result = await LeadRepository.GetAllAsync();
+            leads = result.ToList();
         }
         catch (Exception ex)
         {
