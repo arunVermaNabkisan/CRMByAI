@@ -65,7 +65,7 @@
                         }
 
                         <div class="col-md-6">
-                            <label class="form-label">@(customer.LegalConstitution == LegalConstitution.Individual ? "Full Name" : "Entity Name") <span class="text-danger">*</span></label>
+                            <label class="form-label">@(customer.LegalConstitution == LegalConstitution.IndividualProprietor ? "Full Name" : "Entity Name") <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" @bind="customer.EntityName" required />
                         </div>
 
@@ -75,14 +75,14 @@
                         </div>
 
                         <div class="col-md-4">
-                            <label class="form-label">PAN Number @(customer.LegalConstitution != LegalConstitution.Individual ? "*" : "")</label>
+                            <label class="form-label">PAN Number @(customer.LegalConstitution != LegalConstitution.IndividualProprietor ? "*" : "")</label>
                             <input type="text" class="form-control" @bind="customer.PANNumber"
                                    maxlength="10" style="text-transform: uppercase"
-                                   required="@(customer.LegalConstitution != LegalConstitution.Individual)" />
+                                   required="@(customer.LegalConstitution != LegalConstitution.IndividualProprietor)" />
                             <small class="text-muted">Format: AAAAA9999A</small>
                         </div>
 
-                        @if (customer.LegalConstitution == LegalConstitution.Individual)
+                        @if (customer.LegalConstitution == LegalConstitution.IndividualProprietor)
                         {
                             <div class="col-md-4">
                                 <label class="form-label">Aadhaar Number (Masked)</label>
@@ -102,8 +102,8 @@
                         }
 
                         <div class="col-md-6">
-                            <label class="form-label">@(customer.LegalConstitution == LegalConstitution.Individual ? "Occupation" : "Primary Business Activity")</label>
-                            @if (customer.LegalConstitution == LegalConstitution.Individual)
+                            <label class="form-label">@(customer.LegalConstitution == LegalConstitution.IndividualProprietor ? "Occupation" : "Primary Business Activity")</label>
+                            @if (customer.LegalConstitution == LegalConstitution.IndividualProprietor)
                             {
                                 <input type="text" class="form-control" @bind="customer.Occupation" />
                             }
@@ -128,7 +128,7 @@
                             </select>
                         </div>
 
-                        @if (customer.LegalConstitution != LegalConstitution.Individual)
+                        @if (customer.LegalConstitution != LegalConstitution.IndividualProprietor)
                         {
                             <div class="col-md-6">
                                 <label class="form-label">Annual Turnover (Last FY)</label>
@@ -152,11 +152,11 @@
                                 <label class="form-label">Annual Income Range</label>
                                 <select class="form-select" @bind="customer.AnnualIncomeRange">
                                     <option value="">Select...</option>
-                                    <option value="< 2.5L">< 2.5 Lakhs</option>
+                                    <option value="&lt; 2.5L">&lt; 2.5 Lakhs</option>
                                     <option value="2.5L - 5L">2.5L - 5L</option>
                                     <option value="5L - 10L">5L - 10L</option>
                                     <option value="10L - 25L">10L - 25L</option>
-                                    <option value="> 25L">> 25 Lakhs</option>
+                                    <option value="&gt; 25L">&gt; 25 Lakhs</option>
                                 </select>
                             </div>
                         }

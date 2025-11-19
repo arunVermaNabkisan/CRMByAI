@@ -119,8 +119,8 @@
                                         }
                                     </td>
                                     <td>
-                                        <span class="badge @GetTypeBadgeClass(comm.Type)">
-                                            @GetTypeIcon(comm.Type) @comm.Type
+                                        <span class="badge @GetTypeBadgeClass(comm.CommunicationType)">
+                                            @GetTypeIcon(comm.CommunicationType) @comm.CommunicationType
                                         </span>
                                     </td>
                                     <td>
@@ -174,7 +174,7 @@
             (string.IsNullOrEmpty(searchTerm) ||
              (c.Customer?.EntityName != null && c.Customer.EntityName.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) ||
              c.Subject.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) &&
-            (string.IsNullOrEmpty(filterType) || c.Type.ToString() == filterType) &&
+            (string.IsNullOrEmpty(filterType) || c.CommunicationType.ToString() == filterType) &&
             (string.IsNullOrEmpty(filterDirection) || c.Direction.ToString() == filterDirection) &&
             (!filterFromDate.HasValue || c.CommunicationDate.Date >= filterFromDate.Value.Date) &&
             (!filterToDate.HasValue || c.CommunicationDate.Date <= filterToDate.Value.Date)
