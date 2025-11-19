@@ -4,7 +4,7 @@ namespace SambhandhCRM.Core.DTOs.Lead;
 
 public class UpdateLeadRequest
 {
-    public Guid Id { get; set; }
+    public long Id { get; set; }
     public string? LeadSource { get; set; }
     public string? ReferralSource { get; set; }
     public string? ProductInterest { get; set; }

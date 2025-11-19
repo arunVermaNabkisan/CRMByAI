@@ -55,7 +55,7 @@ public class ContactPersonsController : ControllerBase
     [HttpGet("{id}")]
     [ProducesResponseType(typeof(ApiResponse<ContactPersonResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<ContactPersonResponse>), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetContactPersonById(Guid id)
+    public async Task<IActionResult> GetContactPersonById(long id)
     {
         try
         {
@@ -83,7 +83,7 @@ public class ContactPersonsController : ControllerBase
             // TODO: Check for duplicate by mobile number and PAN
             // TODO: Create contact person entity and save to database
 
-            return CreatedAtAction(nameof(GetContactPersonById), new { id = Guid.NewGuid() },
+            return CreatedAtAction(nameof(GetContactPersonById), new { id = 0L },
                 ApiResponse<ContactPersonResponse>.SuccessResponse(
                     new ContactPersonResponse(), "Contact person created successfully"));
         }
@@ -101,7 +101,7 @@ public class ContactPersonsController : ControllerBase
     [HttpPut("{id}")]
     [ProducesResponseType(typeof(ApiResponse<ContactPersonResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<ContactPersonResponse>), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> UpdateContactPerson(Guid id, [FromBody] CreateContactPersonRequest request)
+    public async Task<IActionResult> UpdateContactPerson(long id, [FromBody] CreateContactPersonRequest request)
     {
         try
         {
@@ -148,7 +148,7 @@ public class ContactPersonsController : ControllerBase
     /// </summary>
     [HttpDelete("unlink/{customerId}/{contactPersonId}")]
     [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> UnlinkFromCustomer(Guid customerId, Guid contactPersonId)
+    public async Task<IActionResult> UnlinkFromCustomer(long customerId, long contactPersonId)
     {
         try
         {
@@ -170,7 +170,7 @@ public class ContactPersonsController : ControllerBase
     /// </summary>
     [HttpGet("by-customer/{customerId}")]
     [ProducesResponseType(typeof(ApiResponse<List<ContactPersonResponse>>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetContactPersonsByCustomer(Guid customerId)
+    public async Task<IActionResult> GetContactPersonsByCustomer(long customerId)
     {
         try
         {
@@ -192,7 +192,7 @@ public class ContactPersonsController : ControllerBase
     /// </summary>
     [HttpGet("{contactPersonId}/customers")]
     [ProducesResponseType(typeof(ApiResponse<List<CustomerRelationshipDto>>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetCustomersByContactPerson(Guid contactPersonId)
+    public async Task<IActionResult> GetCustomersByContactPerson(long contactPersonId)
     {
         try
         {
@@ -244,7 +244,7 @@ public class ContactPersonsController : ControllerBase
             var duplicateCheck = new
             {
                 Exists = false,
-                ContactPersonId = (Guid?)null,
+                ContactPersonId = (long?)null,
                 MatchedBy = "" // "Mobile" or "PAN"
             };
 

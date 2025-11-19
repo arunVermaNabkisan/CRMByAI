@@ -4,9 +4,9 @@ namespace SambhandhCRM.Core.DTOs.Lead;
 
 public class LeadResponse
 {
-    public Guid Id { get; set; }
+    public long Id { get; set; }
     public string LeadNumber { get; set; } = string.Empty;
-    public Guid CustomerId { get; set; }
+    public long CustomerId { get; set; }
     public string CustomerName { get; set; } = string.Empty;
     public string LeadSource { get; set; } = string.Empty;
     public string ProductInterest { get; set; } = string.Empty;

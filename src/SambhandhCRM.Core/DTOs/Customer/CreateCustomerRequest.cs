@@ -44,5 +44,5 @@ public class CreateCustomerRequest
     public string? OtherLenderRelationships { get; set; }
 
     // Business Segments
-    public List<Guid> BusinessSegmentIds { get; set; } = new();
+    public List<long> BusinessSegmentIds { get; set; } = new();
 }

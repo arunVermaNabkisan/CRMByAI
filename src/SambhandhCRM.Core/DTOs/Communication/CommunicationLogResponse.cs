@@ -4,10 +4,10 @@ namespace SambhandhCRM.Core.DTOs.Communication;
 
 public class CommunicationLogResponse
 {
-    public Guid Id { get; set; }
-    public Guid? CustomerId { get; set; }
+    public long Id { get; set; }
+    public long? CustomerId { get; set; }
     public string? CustomerName { get; set; }
-    public Guid? LeadId { get; set; }
+    public long? LeadId { get; set; }
     public string? LeadNumber { get; set; }
     public DateTime CommunicationDate { get; set; }
     public CommunicationType CommunicationType { get; set; }

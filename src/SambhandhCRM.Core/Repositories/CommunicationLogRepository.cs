@@ -25,7 +25,7 @@ public class CommunicationLogRepository : ICommunicationLogRepository
         return await connection.QueryAsync<CommunicationLog>(sql);
     }
 
-    public async Task<CommunicationLog?> GetByIdAsync(Guid id)
+    public async Task<CommunicationLog?> GetByIdAsync(long id)
     {
         using var connection = _connectionFactory.CreateConnection();
         var sql = @"
@@ -35,7 +35,7 @@ public class CommunicationLogRepository : ICommunicationLogRepository
         return await connection.QueryFirstOrDefaultAsync<CommunicationLog>(sql, new { Id = id });
     }
 
-    public async Task<IEnumerable<CommunicationLog>> GetByCustomerIdAsync(Guid customerId)
+    public async Task<IEnumerable<CommunicationLog>> GetByCustomerIdAsync(long customerId)
     {
         using var connection = _connectionFactory.CreateConnection();
         var sql = @"
@@ -46,7 +46,7 @@ public class CommunicationLogRepository : ICommunicationLogRepository
         return await connection.QueryAsync<CommunicationLog>(sql, new { CustomerId = customerId });
     }
 
-    public async Task<IEnumerable<CommunicationLog>> GetByLeadIdAsync(Guid leadId)
+    public async Task<IEnumerable<CommunicationLog>> GetByLeadIdAsync(long leadId)
     {
         using var connection = _connectionFactory.CreateConnection();
         var sql = @"
@@ -57,7 +57,7 @@ public class CommunicationLogRepository : ICommunicationLogRepository
         return await connection.QueryAsync<CommunicationLog>(sql, new { LeadId = leadId });
     }
 
-    public async Task<Guid> CreateAsync(CommunicationLog communicationLog)
+    public async Task<long> CreateAsync(CommunicationLog communicationLog)
     {
         using var connection = _connectionFactory.CreateConnection();
 
@@ -103,7 +103,7 @@ public class CommunicationLogRepository : ICommunicationLogRepository
         return rowsAffected > 0;
     }
 
-    public async Task<bool> DeleteAsync(Guid id)
+    public async Task<bool> DeleteAsync(long id)
     {
         using var connection = _connectionFactory.CreateConnection();
         var sql = @"

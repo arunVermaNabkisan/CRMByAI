@@ -25,7 +25,7 @@ public class ContactPersonRepository : IContactPersonRepository
         return await connection.QueryAsync<ContactPerson>(sql);
     }
 
-    public async Task<ContactPerson?> GetByIdAsync(Guid id)
+    public async Task<ContactPerson?> GetByIdAsync(long id)
     {
         using var connection = _connectionFactory.CreateConnection();
         var sql = @"
@@ -35,7 +35,7 @@ public class ContactPersonRepository : IContactPersonRepository
         return await connection.QueryFirstOrDefaultAsync<ContactPerson>(sql, new { Id = id });
     }
 
-    public async Task<IEnumerable<ContactPerson>> GetByCustomerIdAsync(Guid customerId)
+    public async Task<IEnumerable<ContactPerson>> GetByCustomerIdAsync(long customerId)
     {
         using var connection = _connectionFactory.CreateConnection();
         var sql = @"
@@ -48,7 +48,7 @@ public class ContactPersonRepository : IContactPersonRepository
         return await connection.QueryAsync<ContactPerson>(sql, new { CustomerId = customerId });
     }
 
-    public async Task<Guid> CreateAsync(ContactPerson contactPerson)
+    public async Task<long> CreateAsync(ContactPerson contactPerson)
     {
         using var connection = _connectionFactory.CreateConnection();
 
@@ -89,7 +89,7 @@ public class ContactPersonRepository : IContactPersonRepository
         return rowsAffected > 0;
     }
 
-    public async Task<bool> DeleteAsync(Guid id)
+    public async Task<bool> DeleteAsync(long id)
     {
         using var connection = _connectionFactory.CreateConnection();
         var sql = @"
@@ -101,7 +101,7 @@ public class ContactPersonRepository : IContactPersonRepository
         return rowsAffected > 0;
     }
 
-    public async Task<bool> LinkToCustomerAsync(Guid contactPersonId, Guid customerId, bool isPrimary = false)
+    public async Task<bool> LinkToCustomerAsync(long contactPersonId, long customerId, bool isPrimary = false)
     {
         using var connection = _connectionFactory.CreateConnection();
 

@@ -4,8 +4,8 @@ namespace SambhandhCRM.Core.DTOs.Communication;
 
 public class CreateCommunicationLogRequest
 {
-    public Guid? CustomerId { get; set; }
-    public Guid? LeadId { get; set; }
+    public long? CustomerId { get; set; }
+    public long? LeadId { get; set; }
     public DateTime CommunicationDate { get; set; } = DateTime.UtcNow;
     public CommunicationType CommunicationType { get; set; }
     public CommunicationDirection Direction { get; set; }
