@@ -24,8 +24,6 @@ CREATE TABLE [dbo].[MasterDataCategory]
     -- Foreign Keys
     CONSTRAINT [FK_MasterDataCategory_ParentCategory] FOREIGN KEY ([ParentCategoryId]) REFERENCES [dbo].[MasterDataCategory]([CategoryId]),
 
-    -- Unique Constraints
-    CONSTRAINT [UK_MasterDataCategory_Code] UNIQUE ([CategoryCode]) WHERE [IsDeleted] = 0
 );
 GO
 

@@ -40,7 +40,7 @@ CREATE TABLE [dbo].[PartyIndividualRelationship]
     CONSTRAINT [FK_PartyIndividualRelationship_Individual] FOREIGN KEY ([IndividualId]) REFERENCES [dbo].[Individual]([IndividualId]),
 
     -- Unique Constraint (one person can have only one active role in an organization)
-    CONSTRAINT [UK_PartyIndividualRelationship] UNIQUE ([PartyId], [IndividualId], [RoleInOrganization]) WHERE [IsDeleted] = 0 AND [IsCurrentRole] = 1
+   
 );
 GO
 

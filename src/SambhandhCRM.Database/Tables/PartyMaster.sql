@@ -67,10 +67,6 @@ CREATE TABLE [dbo].[PartyMaster]
     [DeletedBy] BIGINT NULL,
     [DeletedDate] DATETIME NULL,
 
-    -- Indexes
-    CONSTRAINT [UK_PartyMaster_PANNumber] UNIQUE ([PANNumber]) WHERE [PANNumber] IS NOT NULL AND [IsDeleted] = 0,
-    CONSTRAINT [UK_PartyMaster_CINNumber] UNIQUE ([CINNumber]) WHERE [CINNumber] IS NOT NULL AND [IsDeleted] = 0,
-    CONSTRAINT [UK_PartyMaster_RegistrationNumber] UNIQUE ([RegistrationNumber]) WHERE [RegistrationNumber] IS NOT NULL AND [IsDeleted] = 0,
 
     -- Constraints
     CONSTRAINT [CK_PartyMaster_LegalConstitution] CHECK ([LegalConstitution] IN ('Company', 'Society', 'Trust/NGO', 'Partnership/LLP', 'Individual/Proprietor')),

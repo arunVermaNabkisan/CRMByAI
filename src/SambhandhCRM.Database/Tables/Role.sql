@@ -28,9 +28,7 @@ CREATE TABLE [dbo].[Role]
     -- Foreign Keys
     CONSTRAINT [FK_Role_ParentRole] FOREIGN KEY ([ParentRoleId]) REFERENCES [dbo].[Role]([RoleId]),
 
-    -- Unique Constraints
-    CONSTRAINT [UK_Role_RoleName] UNIQUE ([RoleName]) WHERE [IsDeleted] = 0,
-    CONSTRAINT [UK_Role_RoleCode] UNIQUE ([RoleCode]) WHERE [IsDeleted] = 0
+
 );
 GO
 

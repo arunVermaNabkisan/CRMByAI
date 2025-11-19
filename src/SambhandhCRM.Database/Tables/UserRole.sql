@@ -21,8 +21,7 @@ CREATE TABLE [dbo].[UserRole]
     CONSTRAINT [FK_UserRole_User] FOREIGN KEY ([UserId]) REFERENCES [dbo].[User]([UserId]),
     CONSTRAINT [FK_UserRole_Role] FOREIGN KEY ([RoleId]) REFERENCES [dbo].[Role]([RoleId]),
 
-    -- Unique Constraint (one user can have a role only once actively)
-    CONSTRAINT [UK_UserRole] UNIQUE ([UserId], [RoleId]) WHERE [IsDeleted] = 0 AND [IsActive] = 1
+
 );
 GO
 

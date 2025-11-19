@@ -67,10 +67,7 @@ CREATE TABLE [dbo].[User]
     CONSTRAINT [FK_User_ReportingManager] FOREIGN KEY ([ReportingManagerId]) REFERENCES [dbo].[User]([UserId]),
     CONSTRAINT [FK_User_RegionalManager] FOREIGN KEY ([RegionalManagerId]) REFERENCES [dbo].[User]([UserId]),
 
-    -- Unique Constraints
-    CONSTRAINT [UK_User_UserName] UNIQUE ([UserName]) WHERE [IsDeleted] = 0,
-    CONSTRAINT [UK_User_Email] UNIQUE ([Email]) WHERE [IsDeleted] = 0,
-    CONSTRAINT [UK_User_EmployeeCode] UNIQUE ([EmployeeCode]) WHERE [EmployeeCode] IS NOT NULL AND [IsDeleted] = 0,
+
 
     -- Check Constraints
     CONSTRAINT [CK_User_Status] CHECK ([Status] IN ('Active', 'Inactive', 'Locked', 'Suspended'))

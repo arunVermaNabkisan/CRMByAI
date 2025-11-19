@@ -53,10 +53,6 @@ CREATE TABLE [dbo].[Individual]
     [IsActive] BIT NOT NULL DEFAULT 1,
     [IsDeleted] BIT NOT NULL DEFAULT 0,
 
-    -- Unique Constraints
-    CONSTRAINT [UK_Individual_MobileNumber] UNIQUE ([MobileNumber]) WHERE [MobileNumber] IS NOT NULL AND [IsDeleted] = 0,
-    CONSTRAINT [UK_Individual_PANNumber] UNIQUE ([PANNumber]) WHERE [PANNumber] IS NOT NULL AND [IsDeleted] = 0,
-    CONSTRAINT [UK_Individual_DINNumber] UNIQUE ([DINNumber]) WHERE [DINNumber] IS NOT NULL AND [IsDeleted] = 0
 );
 GO
 
