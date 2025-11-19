@@ -1,0 +1,428 @@
+@page "/dashboard"
+@using SambhandhCRM.Core.Models
+@using SambhandhCRM.Core.Models.Enums
+@using System.Net.Http.Json
+@inject HttpClient Http
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+
+<PageTitle>Dashboard - Sambandh CRM</PageTitle>
+
+<div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col">
+            <h2>Dashboard</h2>
+            <p class="text-muted">Welcome to Sambandh CRM - Overview & Analytics</p>
+        </div>
+        <div class="col-auto">
+            <button class="btn btn-outline-primary" @onclick="RefreshData">
+                <i class="bi bi-arrow-clockwise"></i> Refresh
+            </button>
+        </div>
+    </div>
+
+    @if (loading)
+    {
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    }
+    else
+    {
+        <!-- Key Metrics -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card text-white bg-primary h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="card-title mb-0">Total Customers</h6>
+                                <h2 class="mt-2 mb-0">@totalCustomers</h2>
+                                <small>+@newCustomersThisMonth this month</small>
+                            </div>
+                            <div>
+                                <i class="bi bi-people fs-1"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-primary border-top border-white">
+                        <a href="/customers" class="text-white text-decoration-none">
+                            View all <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card text-white bg-warning h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="card-title mb-0">Active Leads</h6>
+                                <h2 class="mt-2 mb-0">@activeLeads</h2>
+                                <small>@newLeadsThisWeek new this week</small>
+                            </div>
+                            <div>
+                                <i class="bi bi-lightning fs-1"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-warning border-top border-white">
+                        <a href="/leads" class="text-white text-decoration-none">
+                            View pipeline <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card text-white bg-success h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="card-title mb-0">Conversions</h6>
+                                <h2 class="mt-2 mb-0">@conversionsThisMonth</h2>
+                                <small>@conversionRate% conversion rate</small>
+                            </div>
+                            <div>
+                                <i class="bi bi-graph-up-arrow fs-1"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-success border-top border-white">
+                        <a href="/reports/conversions" class="text-white text-decoration-none">
+                            View report <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card text-white bg-danger h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="card-title mb-0">Overdue Follow-ups</h6>
+                                <h2 class="mt-2 mb-0">@overdueFollowUps</h2>
+                                <small>Requires immediate attention</small>
+                            </div>
+                            <div>
+                                <i class="bi bi-exclamation-triangle fs-1"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-danger border-top border-white">
+                        <a href="/leads?filter=overdue" class="text-white text-decoration-none">
+                            Take action <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Lead Pipeline Status -->
+            <div class="col-md-8">
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Lead Pipeline Status</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Status</th>
+                                        <th>Count</th>
+                                        <th>Percentage</th>
+                                        <th>Visual</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var status in Enum.GetValues<LeadStatus>())
+                                    {
+                                        var count = GetLeadCountByStatus(status);
+                                        var percentage = totalLeads > 0 ? (count * 100.0 / totalLeads) : 0;
+                                        <tr>
+                                            <td>
+                                                <span class="badge @GetStatusBadgeClass(status)">@status</span>
+                                            </td>
+                                            <td><strong>@count</strong></td>
+                                            <td>@percentage.ToString("0.0")%</td>
+                                            <td>
+                                                <div class="progress" style="height: 20px;">
+                                                    <div class="progress-bar @GetStatusProgressClass(status)"
+                                                         role="progressbar"
+                                                         style="width: @percentage%"
+                                                         aria-valuenow="@percentage"
+                                                         aria-valuemin="0"
+                                                         aria-valuemax="100">
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Customers by Segment -->
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Customers by Business Segment</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            @foreach (var segment in businessSegments)
+                            {
+                                <div class="col-md-4 mb-3">
+                                    <div class="card bg-light">
+                                        <div class="card-body text-center">
+                                            <h3 class="text-primary">@segment.Count</h3>
+                                            <p class="mb-0">@segment.Name</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="col-md-4">
+                <!-- Today's Follow-ups -->
+                <div class="card mb-4">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0">Today's Follow-ups</h5>
+                    </div>
+                    <div class="card-body" style="max-height: 300px; overflow-y: auto;">
+                        @if (todaysFollowUps.Any())
+                        {
+                            <ul class="list-group list-group-flush">
+                                @foreach (var lead in todaysFollowUps.Take(5))
+                                {
+                                    <li class="list-group-item px-0">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <strong>@lead.Customer?.EntityName</strong>
+                                                <br />
+                                                <small class="text-muted">@lead.LeadNumber</small>
+                                            </div>
+                                            <span class="badge @GetPriorityBadgeClass(lead.Priority)">
+                                                @lead.Priority
+                                            </span>
+                                        </div>
+                                    </li>
+                                }
+                            </ul>
+                            @if (todaysFollowUps.Count > 5)
+                            {
+                                <div class="text-center mt-2">
+                                    <a href="/leads?filter=today" class="btn btn-sm btn-outline-primary">
+                                        View all @todaysFollowUps.Count follow-ups
+                                    </a>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <p class="text-muted text-center">No follow-ups scheduled for today</p>
+                        }
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="card mb-4">
+                    <div class="card-header bg-secondary text-white">
+                        <h5 class="mb-0">Recent Activity</h5>
+                    </div>
+                    <div class="card-body" style="max-height: 300px; overflow-y: auto;">
+                        @if (recentActivities.Any())
+                        {
+                            <div class="timeline">
+                                @foreach (var activity in recentActivities.Take(5))
+                                {
+                                    <div class="timeline-item mb-3">
+                                        <small class="text-muted">@activity.Date.ToString("dd MMM, hh:mm tt")</small>
+                                        <p class="mb-0"><strong>@activity.Title</strong></p>
+                                        <small>@activity.Description</small>
+                                    </div>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <p class="text-muted text-center">No recent activity</p>
+                        }
+                    </div>
+                </div>
+
+                <!-- Quick Stats -->
+                <div class="card">
+                    <div class="card-header bg-secondary text-white">
+                        <h5 class="mb-0">Quick Stats</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="text-muted small">Total Contact Persons</label>
+                            <h4>@totalContactPersons</h4>
+                        </div>
+                        <div class="mb-3">
+                            <label class="text-muted small">Communications This Month</label>
+                            <h4>@communicationsThisMonth</h4>
+                        </div>
+                        <div>
+                            <label class="text-muted small">Active NABKISAN Customers</label>
+                            <h4>@activeNabkisanCustomers</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private bool loading = true;
+    private int totalCustomers = 0;
+    private int newCustomersThisMonth = 0;
+    private int activeLeads = 0;
+    private int newLeadsThisWeek = 0;
+    private int conversionsThisMonth = 0;
+    private double conversionRate = 0;
+    private int overdueFollowUps = 0;
+    private int totalLeads = 0;
+    private int totalContactPersons = 0;
+    private int communicationsThisMonth = 0;
+    private int activeNabkisanCustomers = 0;
+
+    private List<Lead> todaysFollowUps = new();
+    private List<ActivityItem> recentActivities = new();
+    private List<SegmentCount> businessSegments = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDashboardData();
+    }
+
+    private async Task LoadDashboardData()
+    {
+        loading = true;
+        try
+        {
+            // Mock data - replace with actual API calls
+            totalCustomers = 150;
+            newCustomersThisMonth = 12;
+            activeLeads = 45;
+            newLeadsThisWeek = 8;
+            conversionsThisMonth = 6;
+            conversionRate = 13.3;
+            overdueFollowUps = 5;
+            totalLeads = 100;
+            totalContactPersons = 85;
+            communicationsThisMonth = 234;
+            activeNabkisanCustomers = 42;
+
+            businessSegments = new List<SegmentCount>
+            {
+                new SegmentCount { Name = "FPO", Count = 45 },
+                new SegmentCount { Name = "MFI", Count = 32 },
+                new SegmentCount { Name = "NBFC", Count = 28 },
+                new SegmentCount { Name = "Agri-Startup", Count = 20 },
+                new SegmentCount { Name = "PACS", Count = 15 },
+                new SegmentCount { Name = "Others", Count = 10 }
+            };
+
+            todaysFollowUps = new List<Lead>();
+            recentActivities = new List<ActivityItem>
+            {
+                new ActivityItem { Date = DateTime.Now.AddHours(-1), Title = "New Lead Created", Description = "Lead #LEAD-202411-1234 for XYZ Company" },
+                new ActivityItem { Date = DateTime.Now.AddHours(-2), Title = "Customer Updated", Description = "ABC FPO details updated" },
+                new ActivityItem { Date = DateTime.Now.AddHours(-3), Title = "Communication Logged", Description = "Phone call with DEF MFI" }
+            };
+
+            await Task.CompletedTask;
+        }
+        finally
+        {
+            loading = false;
+        }
+    }
+
+    private async Task RefreshData()
+    {
+        await LoadDashboardData();
+    }
+
+    private int GetLeadCountByStatus(LeadStatus status)
+    {
+        // Mock data - replace with actual logic
+        return status switch
+        {
+            LeadStatus.New => 15,
+            LeadStatus.InProgress => 25,
+            LeadStatus.Documentation => 10,
+            LeadStatus.SubmittedToCredit => 8,
+            LeadStatus.Converted => 30,
+            LeadStatus.Dropped => 12,
+            _ => 0
+        };
+    }
+
+    private string GetStatusBadgeClass(LeadStatus status)
+    {
+        return status switch
+        {
+            LeadStatus.New => "bg-info",
+            LeadStatus.InProgress => "bg-warning",
+            LeadStatus.Documentation => "bg-primary",
+            LeadStatus.SubmittedToCredit => "bg-secondary",
+            LeadStatus.Dropped => "bg-danger",
+            LeadStatus.Converted => "bg-success",
+            _ => "bg-secondary"
+        };
+    }
+
+    private string GetStatusProgressClass(LeadStatus status)
+    {
+        return status switch
+        {
+            LeadStatus.New => "bg-info",
+            LeadStatus.InProgress => "bg-warning",
+            LeadStatus.Documentation => "bg-primary",
+            LeadStatus.SubmittedToCredit => "bg-secondary",
+            LeadStatus.Dropped => "bg-danger",
+            LeadStatus.Converted => "bg-success",
+            _ => "bg-secondary"
+        };
+    }
+
+    private string GetPriorityBadgeClass(Priority priority)
+    {
+        return priority switch
+        {
+            Priority.High => "bg-danger",
+            Priority.Medium => "bg-warning",
+            Priority.Low => "bg-secondary",
+            _ => "bg-secondary"
+        };
+    }
+
+    private class SegmentCount
+    {
+        public string Name { get; set; } = "";
+        public int Count { get; set; }
+    }
+
+    private class ActivityItem
+    {
+        public DateTime Date { get; set; }
+        public string Title { get; set; } = "";
+        public string Description { get; set; } = "";
+    }
+}

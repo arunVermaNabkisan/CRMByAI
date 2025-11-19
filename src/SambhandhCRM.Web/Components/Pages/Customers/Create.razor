@@ -1,0 +1,431 @@
+@page "/customers/create"
+@page "/customers/edit/{id:guid}"
+@using SambhandhCRM.Core.Models
+@using SambhandhCRM.Core.Models.Enums
+@using System.Net.Http.Json
+@inject HttpClient Http
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+
+<PageTitle>@(IsEdit ? "Edit Customer" : "Add New Customer") - Sambandh CRM</PageTitle>
+
+<div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col">
+            <h2>@(IsEdit ? "Edit Customer" : "Add New Customer")</h2>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/customers">Customers</a></li>
+                    <li class="breadcrumb-item active">@(IsEdit ? "Edit" : "Create")</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    @if (loading)
+    {
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    }
+    else
+    {
+        <EditForm Model="customer" OnValidSubmit="HandleSubmit">
+            <!-- Basic Information -->
+            <div class="card mb-3">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Basic Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Legal Constitution <span class="text-danger">*</span></label>
+                            <select class="form-select" @bind="customer.LegalConstitution" required>
+                                <option value="">Select...</option>
+                                @foreach (var type in Enum.GetValues<LegalConstitution>())
+                                {
+                                    <option value="@type">@type</option>
+                                }
+                            </select>
+                        </div>
+
+                        @if (customer.LegalConstitution == LegalConstitution.Company)
+                        {
+                            <div class="col-md-4">
+                                <label class="form-label">CIN</label>
+                                <input type="text" class="form-control" @bind="customer.CIN" maxlength="21" />
+                            </div>
+                            <div class="col-md-4 d-flex align-items-end">
+                                <button type="button" class="btn btn-info w-100" @onclick="FetchFromMCA">
+                                    <i class="bi bi-cloud-download"></i> Fetch from MCA
+                                </button>
+                            </div>
+                        }
+
+                        <div class="col-md-6">
+                            <label class="form-label">@(customer.LegalConstitution == LegalConstitution.Individual ? "Full Name" : "Entity Name") <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" @bind="customer.EntityName" required />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Registration Number</label>
+                            <input type="text" class="form-control" @bind="customer.RegistrationNumber" />
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">PAN Number @(customer.LegalConstitution != LegalConstitution.Individual ? "*" : "")</label>
+                            <input type="text" class="form-control" @bind="customer.PANNumber"
+                                   maxlength="10" style="text-transform: uppercase"
+                                   required="@(customer.LegalConstitution != LegalConstitution.Individual)" />
+                            <small class="text-muted">Format: AAAAA9999A</small>
+                        </div>
+
+                        @if (customer.LegalConstitution == LegalConstitution.Individual)
+                        {
+                            <div class="col-md-4">
+                                <label class="form-label">Aadhaar Number (Masked)</label>
+                                <input type="text" class="form-control" @bind="customer.AadhaarNumber" maxlength="12" />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Date of Birth</label>
+                                <input type="date" class="form-control" @bind="customer.DateOfBirth" />
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="col-md-4">
+                                <label class="form-label">Date of Incorporation/Registration</label>
+                                <input type="date" class="form-control" @bind="customer.DateOfIncorporation" />
+                            </div>
+                        }
+
+                        <div class="col-md-6">
+                            <label class="form-label">@(customer.LegalConstitution == LegalConstitution.Individual ? "Occupation" : "Primary Business Activity")</label>
+                            @if (customer.LegalConstitution == LegalConstitution.Individual)
+                            {
+                                <input type="text" class="form-control" @bind="customer.Occupation" />
+                            }
+                            else
+                            {
+                                <input type="text" class="form-control" @bind="customer.PrimaryBusinessActivity" />
+                            }
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Business Segment(s) <span class="text-danger">*</span></label>
+                            <select class="form-select" @bind="selectedSegment" required>
+                                <option value="">Select Segment...</option>
+                                <option value="FPO">FPO (Farmer Producer Organization)</option>
+                                <option value="Agri-Startup">Agri-Startup</option>
+                                <option value="MFI">MFI (Microfinance Institution)</option>
+                                <option value="NBFC">NBFC</option>
+                                <option value="HFC">HFC (Housing Finance Company)</option>
+                                <option value="CSR Partner">CSR Partner</option>
+                                <option value="PACS">PACS</option>
+                                <option value="Others">Others</option>
+                            </select>
+                        </div>
+
+                        @if (customer.LegalConstitution != LegalConstitution.Individual)
+                        {
+                            <div class="col-md-6">
+                                <label class="form-label">Annual Turnover (Last FY)</label>
+                                <input type="number" class="form-control" @bind="customer.AnnualTurnover" step="0.01" />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Employee Count Range</label>
+                                <select class="form-select" @bind="customer.EmployeeCountRange">
+                                    <option value="">Select...</option>
+                                    <option value="1-10">1-10</option>
+                                    <option value="11-50">11-50</option>
+                                    <option value="51-200">51-200</option>
+                                    <option value="201-500">201-500</option>
+                                    <option value="500+">500+</option>
+                                </select>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="col-md-6">
+                                <label class="form-label">Annual Income Range</label>
+                                <select class="form-select" @bind="customer.AnnualIncomeRange">
+                                    <option value="">Select...</option>
+                                    <option value="< 2.5L">< 2.5 Lakhs</option>
+                                    <option value="2.5L - 5L">2.5L - 5L</option>
+                                    <option value="5L - 10L">5L - 10L</option>
+                                    <option value="10L - 25L">10L - 25L</option>
+                                    <option value="> 25L">> 25 Lakhs</option>
+                                </select>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Information -->
+            <div class="card mb-3">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Contact Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Registered Address <span class="text-danger">*</span></label>
+                            <textarea class="form-control" @bind="customer.RegisteredAddress" rows="2" required></textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Registered PIN Code <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" @bind="customer.RegisteredPinCode" maxlength="6" required />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Office Address</label>
+                            <textarea class="form-control" @bind="customer.OfficeAddress" rows="2"></textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Office PIN Code</label>
+                            <input type="text" class="form-control" @bind="customer.OfficePinCode" maxlength="6" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Correspondence Address</label>
+                            <textarea class="form-control" @bind="customer.CorrespondenceAddress" rows="2"></textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Correspondence PIN Code</label>
+                            <input type="text" class="form-control" @bind="customer.CorrespondencePinCode" maxlength="6" />
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">Primary Phone <span class="text-danger">*</span></label>
+                            <input type="tel" class="form-control" @bind="customer.PrimaryPhone" maxlength="10" required />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Mobile Number</label>
+                            <input type="tel" class="form-control" @bind="customer.MobileNumber" maxlength="10" />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Alternative Phone</label>
+                            <input type="tel" class="form-control" @bind="customer.AlternativePhone" maxlength="10" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Primary Email</label>
+                            <input type="email" class="form-control" @bind="customer.PrimaryEmail" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Secondary Email</label>
+                            <input type="email" class="form-control" @bind="customer.SecondaryEmail" />
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">Website</label>
+                            <input type="url" class="form-control" @bind="customer.Website" />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">LinkedIn Profile</label>
+                            <input type="url" class="form-control" @bind="customer.LinkedInProfile" />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Twitter Profile</label>
+                            <input type="url" class="form-control" @bind="customer.TwitterProfile" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Banking & Financial Information -->
+            <div class="card mb-3">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Banking & Financial Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Primary Bank Name</label>
+                            <input type="text" class="form-control" @bind="customer.PrimaryBankName" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Banking Since (Year)</label>
+                            <input type="number" class="form-control" @bind="customer.BankingSinceYear" min="1900" max="@DateTime.Now.Year" />
+                        </div>
+
+                        <div class="col-md-12">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" @bind="customer.IsExistingNABKISANCustomer" id="existingCustomer" />
+                                <label class="form-check-label" for="existingCustomer">
+                                    Existing NABKISAN Customer
+                                </label>
+                            </div>
+                        </div>
+
+                        @if (customer.IsExistingNABKISANCustomer)
+                        {
+                            <div class="col-md-6">
+                                <label class="form-label">Existing Product Type</label>
+                                <select class="form-select" @bind="customer.ExistingProductType">
+                                    <option value="">Select...</option>
+                                    <option value="Term Loan">Term Loan</option>
+                                    <option value="Working Capital">Working Capital</option>
+                                    <option value="Guarantee">Guarantee</option>
+                                    <option value="Others">Others</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Outstanding Amount</label>
+                                <input type="number" class="form-control" @bind="customer.OutstandingAmount" step="0.01" />
+                            </div>
+                        }
+
+                        <div class="col-md-12">
+                            <label class="form-label">Other Lender Relationships</label>
+                            <textarea class="form-control" @bind="customer.OtherLenderRelationships" rows="2"
+                                      placeholder="Enter names of other banks/financial institutions"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Status -->
+            <div class="card mb-3">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Status & Classification</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Customer Status</label>
+                            <select class="form-select" @bind="customer.Status">
+                                @foreach (var status in Enum.GetValues<CustomerStatus>())
+                                {
+                                    <option value="@status">@status</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <button type="button" class="btn btn-secondary" @onclick="Cancel">
+                            <i class="bi bi-x-circle"></i> Cancel
+                        </button>
+                        <button type="submit" class="btn btn-primary" disabled="@saving">
+                            @if (saving)
+                            {
+                                <span class="spinner-border spinner-border-sm me-2"></span>
+                            }
+                            <i class="bi bi-save"></i> @(IsEdit ? "Update" : "Save") Customer
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </EditForm>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public Guid? Id { get; set; }
+
+    private Customer customer = new();
+    private bool loading = false;
+    private bool saving = false;
+    private string selectedSegment = "";
+
+    private bool IsEdit => Id.HasValue && Id.Value != Guid.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (IsEdit)
+        {
+            await LoadCustomer();
+        }
+        else
+        {
+            customer = new Customer
+            {
+                Id = Guid.NewGuid(),
+                CreatedAt = DateTime.UtcNow,
+                Status = CustomerStatus.Prospect
+            };
+        }
+    }
+
+    private async Task LoadCustomer()
+    {
+        loading = true;
+        try
+        {
+            // Mock data - replace with actual API call
+            // customer = await Http.GetFromJsonAsync<Customer>($"/api/customers/{Id}");
+            customer = new Customer { Id = Id!.Value };
+        }
+        finally
+        {
+            loading = false;
+        }
+    }
+
+    private async Task HandleSubmit()
+    {
+        saving = true;
+        try
+        {
+            // Mock save - replace with actual API call
+            // if (IsEdit)
+            // {
+            //     await Http.PutAsJsonAsync($"/api/customers/{Id}", customer);
+            // }
+            // else
+            // {
+            //     await Http.PostAsJsonAsync("/api/customers", customer);
+            // }
+
+            await Task.Delay(500); // Simulate API call
+            Navigation.NavigateTo("/customers");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error saving customer: {ex.Message}");
+        }
+        finally
+        {
+            saving = false;
+        }
+    }
+
+    private void Cancel()
+    {
+        Navigation.NavigateTo("/customers");
+    }
+
+    private async Task FetchFromMCA()
+    {
+        if (string.IsNullOrWhiteSpace(customer.CIN))
+        {
+            return;
+        }
+
+        try
+        {
+            // Mock MCA fetch - replace with actual API call
+            // var mcaData = await Http.GetFromJsonAsync<McaData>($"/api/mca/fetch/{customer.CIN}");
+            // customer.EntityName = mcaData.CompanyName;
+            // customer.RegisteredAddress = mcaData.RegisteredAddress;
+            // customer.DateOfIncorporation = mcaData.DateOfIncorporation;
+            // ... populate other fields
+
+            await Task.CompletedTask;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error fetching from MCA: {ex.Message}");
+        }
+    }
+}

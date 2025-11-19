@@ -1,0 +1,314 @@
+@page "/leads"
+@using SambhandhCRM.Core.Models
+@using SambhandhCRM.Core.Models.Enums
+@using System.Net.Http.Json
+@inject HttpClient Http
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+
+<PageTitle>Lead Tracking - Sambandh CRM</PageTitle>
+
+<div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col">
+            <h2>Lead Tracking</h2>
+        </div>
+        <div class="col-auto">
+            <button class="btn btn-primary" @onclick="NavigateToCreate">
+                <i class="bi bi-plus-circle"></i> Create New Lead
+            </button>
+            <button class="btn btn-outline-primary" @onclick="NavigateToPipeline">
+                <i class="bi bi-funnel"></i> Pipeline View
+            </button>
+        </div>
+    </div>
+
+    <!-- Lead Stats -->
+    <div class="row mb-3">
+        <div class="col-md-3">
+            <div class="card text-white bg-primary">
+                <div class="card-body">
+                    <h6 class="card-title">Total Leads</h6>
+                    <h3>@(leads?.Count ?? 0)</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-warning">
+                <div class="card-body">
+                    <h6 class="card-title">In Progress</h6>
+                    <h3>@(leads?.Count(l => l.Status == LeadStatus.InProgress) ?? 0)</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-success">
+                <div class="card-body">
+                    <h6 class="card-title">Converted</h6>
+                    <h3>@(leads?.Count(l => l.Status == LeadStatus.Converted) ?? 0)</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-danger">
+                <div class="card-body">
+                    <h6 class="card-title">Dropped</h6>
+                    <h3>@(leads?.Count(l => l.Status == LeadStatus.Dropped) ?? 0)</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="card mb-3">
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">Search</label>
+                    <input type="text" class="form-control" @bind="searchTerm" @bind:event="oninput" placeholder="Lead ID, Customer..." />
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Status</label>
+                    <select class="form-select" @bind="filterStatus">
+                        <option value="">All</option>
+                        @foreach (var status in Enum.GetValues<LeadStatus>())
+                        {
+                            <option value="@status">@status</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Priority</label>
+                    <select class="form-select" @bind="filterPriority">
+                        <option value="">All</option>
+                        @foreach (var priority in Enum.GetValues<Priority>())
+                        {
+                            <option value="@priority">@priority</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Product Interest</label>
+                    <input type="text" class="form-control" @bind="filterProduct" placeholder="Term Loan, Working Capital..." />
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button class="btn btn-secondary w-100" @onclick="ClearFilters">
+                        <i class="bi bi-x-circle"></i> Clear
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lead List -->
+    @if (loading)
+    {
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    }
+    else if (leads == null || !leads.Any())
+    {
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i> No leads found. Click "Create New Lead" to get started.
+        </div>
+    }
+    else
+    {
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Lead ID</th>
+                                <th>Customer</th>
+                                <th>Product</th>
+                                <th>Amount Range</th>
+                                <th>Status</th>
+                                <th>Priority</th>
+                                <th>Last Contact</th>
+                                <th>Next Follow-up</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var lead in filteredLeads)
+                            {
+                                <tr class="@GetRowClass(lead)">
+                                    <td>
+                                        <strong>@lead.LeadNumber</strong>
+                                    </td>
+                                    <td>@lead.Customer?.EntityName</td>
+                                    <td>@lead.ProductInterest</td>
+                                    <td>@lead.LoanAmountRange</td>
+                                    <td>
+                                        <span class="badge @GetStatusBadgeClass(lead.Status)">
+                                            @lead.Status
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge @GetPriorityBadgeClass(lead.Priority)">
+                                            @lead.Priority
+                                        </span>
+                                    </td>
+                                    <td>@(lead.LastContactDate?.ToString("dd MMM yyyy") ?? "N/A")</td>
+                                    <td>
+                                        @if (lead.NextFollowUpDate.HasValue)
+                                        {
+                                            <span class="@GetFollowUpClass(lead.NextFollowUpDate.Value)">
+                                                @lead.NextFollowUpDate.Value.ToString("dd MMM yyyy")
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">Not set</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <button class="btn btn-outline-primary" @onclick="() => ViewLead(lead.Id)">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
+                                            <button class="btn btn-outline-secondary" @onclick="() => EditLead(lead.Id)">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination Info -->
+                <div class="mt-3">
+                    <small class="text-muted">
+                        Showing @filteredLeads.Count() of @leads.Count() leads
+                    </small>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private List<Lead>? leads;
+    private bool loading = true;
+    private string searchTerm = "";
+    private string filterStatus = "";
+    private string filterPriority = "";
+    private string filterProduct = "";
+
+    private IEnumerable<Lead> filteredLeads =>
+        leads?.Where(l =>
+            (string.IsNullOrEmpty(searchTerm) ||
+             l.LeadNumber.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+             (l.Customer?.EntityName != null && l.Customer.EntityName.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))) &&
+            (string.IsNullOrEmpty(filterStatus) || l.Status.ToString() == filterStatus) &&
+            (string.IsNullOrEmpty(filterPriority) || l.Priority.ToString() == filterPriority) &&
+            (string.IsNullOrEmpty(filterProduct) || l.ProductInterest.Contains(filterProduct, StringComparison.OrdinalIgnoreCase))
+        ) ?? Enumerable.Empty<Lead>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadLeads();
+    }
+
+    private async Task LoadLeads()
+    {
+        loading = true;
+        try
+        {
+            // Mock data - replace with actual API call
+            leads = new List<Lead>();
+            // leads = await Http.GetFromJsonAsync<List<Lead>>("/api/leads");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading leads: {ex.Message}");
+            leads = new List<Lead>();
+        }
+        finally
+        {
+            loading = false;
+        }
+    }
+
+    private void NavigateToCreate()
+    {
+        Navigation.NavigateTo("/leads/create");
+    }
+
+    private void NavigateToPipeline()
+    {
+        Navigation.NavigateTo("/leads/pipeline");
+    }
+
+    private void ViewLead(Guid id)
+    {
+        Navigation.NavigateTo($"/leads/{id}");
+    }
+
+    private void EditLead(Guid id)
+    {
+        Navigation.NavigateTo($"/leads/edit/{id}");
+    }
+
+    private void ClearFilters()
+    {
+        searchTerm = "";
+        filterStatus = "";
+        filterPriority = "";
+        filterProduct = "";
+    }
+
+    private string GetStatusBadgeClass(LeadStatus status)
+    {
+        return status switch
+        {
+            LeadStatus.New => "bg-info",
+            LeadStatus.InProgress => "bg-warning",
+            LeadStatus.Documentation => "bg-primary",
+            LeadStatus.SubmittedToCredit => "bg-secondary",
+            LeadStatus.Dropped => "bg-danger",
+            LeadStatus.Converted => "bg-success",
+            _ => "bg-secondary"
+        };
+    }
+
+    private string GetPriorityBadgeClass(Priority priority)
+    {
+        return priority switch
+        {
+            Priority.High => "bg-danger",
+            Priority.Medium => "bg-warning",
+            Priority.Low => "bg-secondary",
+            _ => "bg-secondary"
+        };
+    }
+
+    private string GetRowClass(Lead lead)
+    {
+        if (lead.NextFollowUpDate.HasValue && lead.NextFollowUpDate.Value.Date < DateTime.Today)
+        {
+            return "table-warning";
+        }
+        return "";
+    }
+
+    private string GetFollowUpClass(DateTime followUpDate)
+    {
+        if (followUpDate.Date < DateTime.Today)
+        {
+            return "text-danger fw-bold";
+        }
+        else if (followUpDate.Date == DateTime.Today)
+        {
+            return "text-warning fw-bold";
+        }
+        return "";
+    }
+}
