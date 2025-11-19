@@ -1,0 +1,205 @@
+@page "/reports"
+@using SambhandhCRM.Core.Models
+@using SambhandhCRM.Core.Models.Enums
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+
+<PageTitle>Reports - Sambandh CRM</PageTitle>
+
+<div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col">
+            <h2>Reports & Analytics</h2>
+            <p class="text-muted">Generate and export various reports</p>
+        </div>
+    </div>
+
+    <!-- Customer Reports -->
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="bi bi-people"></i> Customer Reports</h5>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <div class="card h-100 border-primary">
+                        <div class="card-body">
+                            <h6 class="card-title">Customers by Segment</h6>
+                            <p class="card-text">View distribution of customers across business segments</p>
+                            <button class="btn btn-primary btn-sm" @onclick="() => GenerateReport(\"customers-by-segment\")">
+                                <i class="bi bi-file-earmark-bar-graph"></i> Generate
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card h-100 border-primary">
+                        <div class="card-body">
+                            <h6 class="card-title">New Customers Report</h6>
+                            <p class="card-text">Monthly/Quarterly new customer additions</p>
+                            <button class="btn btn-primary btn-sm" @onclick="() => GenerateReport(\"new-customers\")">
+                                <i class="bi bi-file-earmark-bar-graph"></i> Generate
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card h-100 border-primary">
+                        <div class="card-body">
+                            <h6 class="card-title">Geographic Distribution</h6>
+                            <p class="card-text">Customers by location and region</p>
+                            <button class="btn btn-primary btn-sm" @onclick="() => GenerateReport(\"geographic-distribution\")">
+                                <i class="bi bi-file-earmark-bar-graph"></i> Generate
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card h-100 border-primary">
+                        <div class="card-body">
+                            <h6 class="card-title">Dormant Customers</h6>
+                            <p class="card-text">List of inactive customers requiring attention</p>
+                            <button class="btn btn-primary btn-sm" @onclick="() => GenerateReport(\"dormant-customers\")">
+                                <i class="bi bi-file-earmark-bar-graph"></i> Generate
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lead Reports -->
+    <div class="card mb-4">
+        <div class="card-header bg-warning text-dark">
+            <h5 class="mb-0"><i class="bi bi-lightning"></i> Lead Reports</h5>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <div class="card h-100 border-warning">
+                        <div class="card-body">
+                            <h6 class="card-title">Lead Pipeline Summary</h6>
+                            <p class="card-text">Overview of all leads by status</p>
+                            <button class="btn btn-warning btn-sm" @onclick="() => GenerateReport(\"lead-pipeline\")">
+                                <i class="bi bi-file-earmark-bar-graph"></i> Generate
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card h-100 border-warning">
+                        <div class="card-body">
+                            <h6 class="card-title">Conversion Rate Report</h6>
+                            <p class="card-text">Lead to customer conversion metrics</p>
+                            <button class="btn btn-warning btn-sm" @onclick="() => GenerateReport(\"conversion-rate\")">
+                                <i class="bi bi-file-earmark-bar-graph"></i> Generate
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card h-100 border-warning">
+                        <div class="card-body">
+                            <h6 class="card-title">Lead Aging Analysis</h6>
+                            <p class="card-text">Time spent by leads in each stage</p>
+                            <button class="btn btn-warning btn-sm" @onclick="() => GenerateReport(\"lead-aging\")">
+                                <i class="bi bi-file-earmark-bar-graph"></i> Generate
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card h-100 border-warning">
+                        <div class="card-body">
+                            <h6 class="card-title">Leads by Product</h6>
+                            <p class="card-text">Product-wise lead distribution</p>
+                            <button class="btn btn-warning btn-sm" @onclick="() => GenerateReport(\"leads-by-product\")">
+                                <i class="bi bi-file-earmark-bar-graph"></i> Generate
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Activity Reports -->
+    <div class="card mb-4">
+        <div class="card-header bg-info text-white">
+            <h5 class="mb-0"><i class="bi bi-activity"></i> Activity Reports</h5>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <div class="card h-100 border-info">
+                        <div class="card-body">
+                            <h6 class="card-title">Communication Summary</h6>
+                            <p class="card-text">All customer communications by type</p>
+                            <button class="btn btn-info btn-sm" @onclick="() => GenerateReport(\"communication-summary\")">
+                                <i class="bi bi-file-earmark-bar-graph"></i> Generate
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card h-100 border-info">
+                        <div class="card-body">
+                            <h6 class="card-title">User Activity Log</h6>
+                            <p class="card-text">Track activities by relationship managers</p>
+                            <button class="btn btn-info btn-sm" @onclick="() => GenerateReport(\"user-activity\")">
+                                <i class="bi bi-file-earmark-bar-graph"></i> Generate
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card h-100 border-info">
+                        <div class="card-body">
+                            <h6 class="card-title">Follow-up Due Report</h6>
+                            <p class="card-text">Pending and overdue follow-ups</p>
+                            <button class="btn btn-info btn-sm" @onclick="() => GenerateReport(\"follow-up-due\")">
+                                <i class="bi bi-file-earmark-bar-graph"></i> Generate
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Reports -->
+    <div class="card">
+        <div class="card-header bg-secondary text-white">
+            <h5 class="mb-0"><i class="bi bi-gear"></i> Custom Reports</h5>
+        </div>
+        <div class="card-body">
+            <p>Build your own custom reports with flexible filters and parameters</p>
+            <button class="btn btn-secondary" @onclick="BuildCustomReport">
+                <i class="bi bi-plus-circle"></i> Build Custom Report
+            </button>
+        </div>
+    </div>
+</div>
+
+@code {
+    private void GenerateReport(string reportType)
+    {
+        // Mock - replace with actual report generation
+        Console.WriteLine($"Generating report: {reportType}");
+        // Navigation.NavigateTo($"/reports/{reportType}");
+    }
+
+    private void BuildCustomReport()
+    {
+        Navigation.NavigateTo("/reports/custom");
+    }
+}

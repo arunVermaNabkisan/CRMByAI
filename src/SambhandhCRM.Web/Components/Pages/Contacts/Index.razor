@@ -1,0 +1,218 @@
+@page "/contacts"
+@using SambhandhCRM.Core.Models
+@using System.Net.Http.Json
+@inject HttpClient Http
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+
+<PageTitle>Contact Persons - Sambandh CRM</PageTitle>
+
+<div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col">
+            <h2>Contact Persons</h2>
+            <p class="text-muted">Manage key personnel relationships</p>
+        </div>
+        <div class="col-auto">
+            <button class="btn btn-primary" @onclick="NavigateToCreate">
+                <i class="bi bi-person-plus"></i> Add Contact Person
+            </button>
+        </div>
+    </div>
+
+    <!-- Search -->
+    <div class="card mb-3">
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Search</label>
+                    <input type="text" class="form-control" @bind="searchTerm" @bind:event="oninput"
+                           placeholder="Name, Mobile, Email, PAN..." />
+                </div>
+                <div class="col-md-6 d-flex align-items-end">
+                    <button class="btn btn-secondary" @onclick="ClearSearch">
+                        <i class="bi bi-x-circle"></i> Clear
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact List -->
+    @if (loading)
+    {
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    }
+    else if (contacts == null || !contacts.Any())
+    {
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i> No contact persons found. Click "Add Contact Person" to get started.
+        </div>
+    }
+    else
+    {
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Mobile</th>
+                                <th>Email</th>
+                                <th>PAN/DIN</th>
+                                <th>Organizations</th>
+                                <th>Roles</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var contact in filteredContacts)
+                            {
+                                <tr>
+                                    <td>
+                                        <strong>@contact.FullName</strong>
+                                    </td>
+                                    <td>
+                                        <a href="tel:@contact.MobileNumber">
+                                            <i class="bi bi-phone"></i> @contact.MobileNumber
+                                        </a>
+                                    </td>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(contact.Email))
+                                        {
+                                            <a href="mailto:@contact.Email">
+                                                <i class="bi bi-envelope"></i> @contact.Email
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">N/A</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(contact.PANNumber))
+                                        {
+                                            <span>PAN: @contact.PANNumber</span>
+                                        }
+                                        @if (!string.IsNullOrEmpty(contact.DIN))
+                                        {
+                                            <br /><span>DIN: @contact.DIN</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (contact.CustomerRelationships?.Any() == true)
+                                        {
+                                            <span class="badge bg-info">
+                                                @contact.CustomerRelationships.Count Organizations
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">None</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (contact.CustomerRelationships?.Any() == true)
+                                        {
+                                            @foreach (var rel in contact.CustomerRelationships.Take(2))
+                                            {
+                                                <span class="badge bg-secondary me-1">@rel.Role</span>
+                                            }
+                                            @if (contact.CustomerRelationships.Count > 2)
+                                            {
+                                                <span class="badge bg-light text-dark">+@(contact.CustomerRelationships.Count - 2)</span>
+                                            }
+                                        }
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <button class="btn btn-outline-primary" @onclick="() => ViewContact(contact.Id)">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
+                                            <button class="btn btn-outline-secondary" @onclick="() => EditContact(contact.Id)">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination Info -->
+                <div class="mt-3">
+                    <small class="text-muted">
+                        Showing @filteredContacts.Count() of @contacts.Count() contact persons
+                    </small>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private List<ContactPerson>? contacts;
+    private bool loading = true;
+    private string searchTerm = "";
+
+    private IEnumerable<ContactPerson> filteredContacts =>
+        contacts?.Where(c =>
+            string.IsNullOrEmpty(searchTerm) ||
+            c.FullName.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+            c.MobileNumber.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+            (c.Email != null && c.Email.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) ||
+            (c.PANNumber != null && c.PANNumber.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) ||
+            (c.DIN != null && c.DIN.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+        ) ?? Enumerable.Empty<ContactPerson>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadContacts();
+    }
+
+    private async Task LoadContacts()
+    {
+        loading = true;
+        try
+        {
+            // Mock data - replace with actual API call
+            contacts = new List<ContactPerson>();
+            // contacts = await Http.GetFromJsonAsync<List<ContactPerson>>("/api/contact-persons");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading contacts: {ex.Message}");
+            contacts = new List<ContactPerson>();
+        }
+        finally
+        {
+            loading = false;
+        }
+    }
+
+    private void NavigateToCreate()
+    {
+        Navigation.NavigateTo("/contacts/create");
+    }
+
+    private void ViewContact(Guid id)
+    {
+        Navigation.NavigateTo($"/contacts/{id}");
+    }
+
+    private void EditContact(Guid id)
+    {
+        Navigation.NavigateTo($"/contacts/edit/{id}");
+    }
+
+    private void ClearSearch()
+    {
+        searchTerm = "";
+    }
+}

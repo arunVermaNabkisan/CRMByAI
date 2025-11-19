@@ -1,7 +1,158 @@
 ﻿@page "/"
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Home - Sambandh CRM</PageTitle>
 
-<h1>Hello, world!</h1>
+<div class="container-fluid">
+    <div class="row mb-5 mt-4">
+        <div class="col-md-12 text-center">
+            <h1 class="display-4 mb-3">Welcome to <strong>Sambandh CRM</strong></h1>
+            <p class="lead text-muted">NABKISAN Finance Limited - Customer Relationship Management System</p>
+            <hr class="my-4" />
+            <p class="mb-4">
+                Manage your customer relationships, track leads, and drive business growth with our comprehensive CRM solution.
+            </p>
+            <div class="d-flex gap-2 justify-content-center">
+                <button class="btn btn-primary btn-lg" @onclick="NavigateToDashboard">
+                    <i class="bi bi-speedometer2"></i> Go to Dashboard
+                </button>
+                <button class="btn btn-outline-primary btn-lg" @onclick="NavigateToCustomers">
+                    <i class="bi bi-people"></i> View Customers
+                </button>
+            </div>
+        </div>
+    </div>
 
-Welcome to your new app.
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="card h-100 text-center border-primary">
+                <div class="card-body">
+                    <i class="bi bi-people-fill text-primary" style="font-size: 3rem;"></i>
+                    <h5 class="card-title mt-3">Customer Database</h5>
+                    <p class="card-text">Maintain comprehensive records of all your clients and prospects</p>
+                    <a href="/customers" class="btn btn-outline-primary">
+                        <i class="bi bi-arrow-right"></i> Explore
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card h-100 text-center border-warning">
+                <div class="card-body">
+                    <i class="bi bi-lightning-fill text-warning" style="font-size: 3rem;"></i>
+                    <h5 class="card-title mt-3">Lead Tracking</h5>
+                    <p class="card-text">Monitor and manage your sales pipeline effectively</p>
+                    <a href="/leads" class="btn btn-outline-warning">
+                        <i class="bi bi-arrow-right"></i> Explore
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card h-100 text-center border-info">
+                <div class="card-body">
+                    <i class="bi bi-person-lines-fill text-info" style="font-size: 3rem;"></i>
+                    <h5 class="card-title mt-3">Relationships</h5>
+                    <p class="card-text">Track key personnel and decision-makers in organizations</p>
+                    <a href="/contacts" class="btn btn-outline-info">
+                        <i class="bi bi-arrow-right"></i> Explore
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card h-100 text-center border-success">
+                <div class="card-body">
+                    <i class="bi bi-chat-dots-fill text-success" style="font-size: 3rem;"></i>
+                    <h5 class="card-title mt-3">Communications</h5>
+                    <p class="card-text">Log and track all customer interactions in one place</p>
+                    <a href="/communications" class="btn btn-outline-success">
+                        <i class="bi bi-arrow-right"></i> Explore
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-graph-up-arrow"></i> Key Features</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> Comprehensive customer profiles with MCA integration</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> Visual lead pipeline management</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> Contact person relationship mapping</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> Communication tracking and campaigns</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> Comprehensive reporting and analytics</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> Customizable master data configuration</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0"><i class="bi bi-info-circle"></i> Quick Links</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="/dashboard" class="btn btn-outline-primary text-start">
+                            <i class="bi bi-speedometer2"></i> Dashboard & Analytics
+                        </a>
+                        <a href="/customers/create" class="btn btn-outline-primary text-start">
+                            <i class="bi bi-plus-circle"></i> Add New Customer
+                        </a>
+                        <a href="/leads/create" class="btn btn-outline-primary text-start">
+                            <i class="bi bi-plus-circle"></i> Create New Lead
+                        </a>
+                        <a href="/communications/create" class="btn btn-outline-primary text-start">
+                            <i class="bi bi-chat-dots"></i> Log Communication
+                        </a>
+                        <a href="/reports" class="btn btn-outline-primary text-start">
+                            <i class="bi bi-file-earmark-bar-graph"></i> View Reports
+                        </a>
+                        <a href="/admin" class="btn btn-outline-secondary text-start">
+                            <i class="bi bi-gear"></i> System Administration
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card bg-light">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Need Help?</h5>
+                    <p class="card-text">
+                        For support and assistance, please contact your system administrator or refer to the user manual.
+                    </p>
+                    <small class="text-muted">
+                        &copy; 2024 NABKISAN Finance Limited. All rights reserved.
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private void NavigateToDashboard()
+    {
+        Navigation.NavigateTo("/dashboard");
+    }
+
+    private void NavigateToCustomers()
+    {
+        Navigation.NavigateTo("/customers");
+    }
+}

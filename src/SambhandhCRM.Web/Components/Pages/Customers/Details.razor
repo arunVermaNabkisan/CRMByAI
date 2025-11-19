@@ -1,0 +1,425 @@
+@page "/customers/{id:guid}"
+@using SambhandhCRM.Core.Models
+@using SambhandhCRM.Core.Models.Enums
+@using System.Net.Http.Json
+@inject HttpClient Http
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+
+<PageTitle>Customer Details - Sambandh CRM</PageTitle>
+
+<div class="container-fluid">
+    @if (loading)
+    {
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    }
+    else if (customer == null)
+    {
+        <div class="alert alert-danger">
+            <i class="bi bi-exclamation-triangle"></i> Customer not found.
+        </div>
+    }
+    else
+    {
+        <div class="row mb-3">
+            <div class="col">
+                <h2>@customer.EntityName</h2>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="/customers">Customers</a></li>
+                        <li class="breadcrumb-item active">@customer.EntityName</li>
+                    </ol>
+                </nav>
+            </div>
+            <div class="col-auto">
+                <button class="btn btn-primary" @onclick="EditCustomer">
+                    <i class="bi bi-pencil"></i> Edit
+                </button>
+                <button class="btn btn-outline-secondary" @onclick="BackToList">
+                    <i class="bi bi-arrow-left"></i> Back
+                </button>
+            </div>
+        </div>
+
+        <!-- Status Badge -->
+        <div class="row mb-3">
+            <div class="col">
+                <span class="badge @GetStatusBadgeClass(customer.Status) fs-6">
+                    @customer.Status
+                </span>
+                <span class="badge bg-info fs-6 ms-2">
+                    @customer.LegalConstitution
+                </span>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Left Column -->
+            <div class="col-md-8">
+                <!-- Basic Information -->
+                <div class="card mb-3">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="bi bi-info-circle"></i> Basic Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="text-muted small">Legal Constitution</label>
+                                <div class="fw-bold">@customer.LegalConstitution</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="text-muted small">PAN Number</label>
+                                <div class="fw-bold">@(customer.PANNumber ?? "N/A")</div>
+                            </div>
+
+                            @if (!string.IsNullOrEmpty(customer.CIN))
+                            {
+                                <div class="col-md-6">
+                                    <label class="text-muted small">CIN</label>
+                                    <div class="fw-bold">@customer.CIN</div>
+                                </div>
+                            }
+
+                            @if (!string.IsNullOrEmpty(customer.RegistrationNumber))
+                            {
+                                <div class="col-md-6">
+                                    <label class="text-muted small">Registration Number</label>
+                                    <div class="fw-bold">@customer.RegistrationNumber</div>
+                                </div>
+                            }
+
+                            @if (customer.DateOfIncorporation.HasValue)
+                            {
+                                <div class="col-md-6">
+                                    <label class="text-muted small">Date of Incorporation</label>
+                                    <div class="fw-bold">@customer.DateOfIncorporation.Value.ToString("dd MMM yyyy")</div>
+                                </div>
+                            }
+
+                            @if (customer.DateOfBirth.HasValue)
+                            {
+                                <div class="col-md-6">
+                                    <label class="text-muted small">Date of Birth</label>
+                                    <div class="fw-bold">@customer.DateOfBirth.Value.ToString("dd MMM yyyy")</div>
+                                </div>
+                            }
+
+                            @if (!string.IsNullOrEmpty(customer.PrimaryBusinessActivity))
+                            {
+                                <div class="col-md-12">
+                                    <label class="text-muted small">Primary Business Activity</label>
+                                    <div class="fw-bold">@customer.PrimaryBusinessActivity</div>
+                                </div>
+                            }
+
+                            @if (!string.IsNullOrEmpty(customer.Occupation))
+                            {
+                                <div class="col-md-12">
+                                    <label class="text-muted small">Occupation</label>
+                                    <div class="fw-bold">@customer.Occupation</div>
+                                </div>
+                            }
+
+                            @if (customer.AnnualTurnover.HasValue)
+                            {
+                                <div class="col-md-6">
+                                    <label class="text-muted small">Annual Turnover</label>
+                                    <div class="fw-bold">₹ @customer.AnnualTurnover.Value.ToString("N2")</div>
+                                </div>
+                            }
+
+                            @if (!string.IsNullOrEmpty(customer.EmployeeCountRange))
+                            {
+                                <div class="col-md-6">
+                                    <label class="text-muted small">Employee Count</label>
+                                    <div class="fw-bold">@customer.EmployeeCountRange</div>
+                                </div>
+                            }
+
+                            @if (customer.BusinessSegments?.Any() == true)
+                            {
+                                <div class="col-md-12">
+                                    <label class="text-muted small">Business Segments</label>
+                                    <div>
+                                        @foreach (var segment in customer.BusinessSegments)
+                                        {
+                                            <span class="badge bg-secondary me-1">@segment.BusinessSegment?.Name</span>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contact Information -->
+                <div class="card mb-3">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="bi bi-telephone"></i> Contact Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-12">
+                                <label class="text-muted small">Registered Address</label>
+                                <div class="fw-bold">
+                                    @customer.RegisteredAddress<br />
+                                    PIN: @customer.RegisteredPinCode
+                                </div>
+                            </div>
+
+                            @if (!string.IsNullOrEmpty(customer.OfficeAddress))
+                            {
+                                <div class="col-md-12">
+                                    <label class="text-muted small">Office Address</label>
+                                    <div class="fw-bold">
+                                        @customer.OfficeAddress<br />
+                                        @if (!string.IsNullOrEmpty(customer.OfficePinCode))
+                                        {
+                                            <span>PIN: @customer.OfficePinCode</span>
+                                        }
+                                    </div>
+                                </div>
+                            }
+
+                            <div class="col-md-4">
+                                <label class="text-muted small">Primary Phone</label>
+                                <div class="fw-bold">
+                                    <i class="bi bi-telephone"></i> <a href="tel:@customer.PrimaryPhone">@customer.PrimaryPhone</a>
+                                </div>
+                            </div>
+
+                            @if (!string.IsNullOrEmpty(customer.MobileNumber))
+                            {
+                                <div class="col-md-4">
+                                    <label class="text-muted small">Mobile</label>
+                                    <div class="fw-bold">
+                                        <i class="bi bi-phone"></i> <a href="tel:@customer.MobileNumber">@customer.MobileNumber</a>
+                                    </div>
+                                </div>
+                            }
+
+                            @if (!string.IsNullOrEmpty(customer.PrimaryEmail))
+                            {
+                                <div class="col-md-6">
+                                    <label class="text-muted small">Primary Email</label>
+                                    <div class="fw-bold">
+                                        <i class="bi bi-envelope"></i> <a href="mailto:@customer.PrimaryEmail">@customer.PrimaryEmail</a>
+                                    </div>
+                                </div>
+                            }
+
+                            @if (!string.IsNullOrEmpty(customer.Website))
+                            {
+                                <div class="col-md-6">
+                                    <label class="text-muted small">Website</label>
+                                    <div class="fw-bold">
+                                        <i class="bi bi-globe"></i> <a href="@customer.Website" target="_blank">@customer.Website</a>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Banking Information -->
+                <div class="card mb-3">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="bi bi-bank"></i> Banking & Financial Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            @if (!string.IsNullOrEmpty(customer.PrimaryBankName))
+                            {
+                                <div class="col-md-6">
+                                    <label class="text-muted small">Primary Bank</label>
+                                    <div class="fw-bold">@customer.PrimaryBankName</div>
+                                </div>
+                            }
+
+                            @if (customer.BankingSinceYear.HasValue)
+                            {
+                                <div class="col-md-6">
+                                    <label class="text-muted small">Banking Since</label>
+                                    <div class="fw-bold">@customer.BankingSinceYear.Value</div>
+                                </div>
+                            }
+
+                            <div class="col-md-12">
+                                <label class="text-muted small">Existing NABKISAN Customer</label>
+                                <div class="fw-bold">
+                                    @if (customer.IsExistingNABKISANCustomer)
+                                    {
+                                        <span class="badge bg-success">Yes</span>
+                                        @if (!string.IsNullOrEmpty(customer.ExistingProductType))
+                                        {
+                                            <span class="ms-2">Product: @customer.ExistingProductType</span>
+                                        }
+                                        @if (customer.OutstandingAmount.HasValue)
+                                        {
+                                            <span class="ms-2">Outstanding: ₹ @customer.OutstandingAmount.Value.ToString("N2")</span>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">No</span>
+                                    }
+                                </div>
+                            </div>
+
+                            @if (!string.IsNullOrEmpty(customer.OtherLenderRelationships))
+                            {
+                                <div class="col-md-12">
+                                    <label class="text-muted small">Other Lender Relationships</label>
+                                    <div class="fw-bold">@customer.OtherLenderRelationships</div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="col-md-4">
+                <!-- Quick Stats -->
+                <div class="card mb-3">
+                    <div class="card-header bg-secondary text-white">
+                        <h6 class="mb-0">Quick Stats</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="text-muted small">Created On</label>
+                            <div class="fw-bold">@customer.CreatedAt.ToString("dd MMM yyyy")</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="text-muted small">Last Updated</label>
+                            <div class="fw-bold">@customer.UpdatedAt.ToString("dd MMM yyyy")</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="card mb-3">
+                    <div class="card-header bg-secondary text-white">
+                        <h6 class="mb-0">Quick Actions</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-outline-primary btn-sm" @onclick="CreateLead">
+                                <i class="bi bi-plus-circle"></i> Create Lead
+                            </button>
+                            <button class="btn btn-outline-primary btn-sm" @onclick="AddContactPerson">
+                                <i class="bi bi-person-plus"></i> Add Contact Person
+                            </button>
+                            <button class="btn btn-outline-primary btn-sm" @onclick="LogCommunication">
+                                <i class="bi bi-chat-dots"></i> Log Communication
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Related Information -->
+                <div class="card">
+                    <div class="card-header bg-secondary text-white">
+                        <h6 class="mb-0">Related Information</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="text-muted small">Total Leads</label>
+                            <div class="fw-bold">@(customer.Leads?.Count ?? 0)</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="text-muted small">Contact Persons</label>
+                            <div class="fw-bold">@(customer.ContactPersons?.Count ?? 0)</div>
+                        </div>
+                        <div>
+                            <label class="text-muted small">Communications</label>
+                            <div class="fw-bold">@(customer.CommunicationLogs?.Count ?? 0)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public Guid Id { get; set; }
+
+    private Customer? customer;
+    private bool loading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadCustomer();
+    }
+
+    private async Task LoadCustomer()
+    {
+        loading = true;
+        try
+        {
+            // Mock data - replace with actual API call
+            // customer = await Http.GetFromJsonAsync<Customer>($"/api/customers/{Id}");
+            customer = new Customer
+            {
+                Id = Id,
+                EntityName = "Sample Customer",
+                LegalConstitution = LegalConstitution.Company,
+                PANNumber = "ABCDE1234F",
+                RegisteredAddress = "123 Main Street",
+                RegisteredPinCode = "400001",
+                PrimaryPhone = "9876543210",
+                Status = CustomerStatus.Customer,
+                CreatedAt = DateTime.UtcNow.AddDays(-30),
+                UpdatedAt = DateTime.UtcNow
+            };
+        }
+        finally
+        {
+            loading = false;
+        }
+    }
+
+    private void EditCustomer()
+    {
+        Navigation.NavigateTo($"/customers/edit/{Id}");
+    }
+
+    private void BackToList()
+    {
+        Navigation.NavigateTo("/customers");
+    }
+
+    private void CreateLead()
+    {
+        Navigation.NavigateTo($"/leads/create?customerId={Id}");
+    }
+
+    private void AddContactPerson()
+    {
+        Navigation.NavigateTo($"/contacts/create?customerId={Id}");
+    }
+
+    private void LogCommunication()
+    {
+        Navigation.NavigateTo($"/communications/create?customerId={Id}");
+    }
+
+    private string GetStatusBadgeClass(CustomerStatus status)
+    {
+        return status switch
+        {
+            CustomerStatus.Prospect => "bg-secondary",
+            CustomerStatus.ActiveLead => "bg-warning",
+            CustomerStatus.Customer => "bg-success",
+            CustomerStatus.Dormant => "bg-info",
+            CustomerStatus.Archived => "bg-dark",
+            _ => "bg-secondary"
+        };
+    }
+}

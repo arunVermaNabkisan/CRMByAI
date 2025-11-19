@@ -1,0 +1,218 @@
+@page "/leads/pipeline"
+@using SambhandhCRM.Core.Models
+@using SambhandhCRM.Core.Models.Enums
+@using System.Net.Http.Json
+@inject HttpClient Http
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+
+<PageTitle>Lead Pipeline - Sambandh CRM</PageTitle>
+
+<div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col">
+            <h2>Lead Pipeline</h2>
+        </div>
+        <div class="col-auto">
+            <button class="btn btn-primary" @onclick="NavigateToCreate">
+                <i class="bi bi-plus-circle"></i> Create New Lead
+            </button>
+            <button class="btn btn-outline-primary" @onclick="NavigateToList">
+                <i class="bi bi-list"></i> List View
+            </button>
+        </div>
+    </div>
+
+    @if (loading)
+    {
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            @foreach (var status in Enum.GetValues<LeadStatus>())
+            {
+                var statusLeads = leads?.Where(l => l.Status == status).ToList() ?? new List<Lead>();
+
+                <div class="col-md-2">
+                    <div class="card mb-3">
+                        <div class="card-header @GetStatusHeaderClass(status) text-white">
+                            <h6 class="mb-0">
+                                @status
+                                <span class="badge bg-light text-dark float-end">@statusLeads.Count</span>
+                            </h6>
+                        </div>
+                        <div class="card-body p-2" style="min-height: 400px; max-height: 600px; overflow-y: auto;">
+                            @if (statusLeads.Any())
+                            {
+                                @foreach (var lead in statusLeads)
+                                {
+                                    <div class="card mb-2 shadow-sm" style="cursor: pointer;" @onclick="() => ViewLead(lead.Id)">
+                                        <div class="card-body p-2">
+                                            <h6 class="card-title mb-1" style="font-size: 0.9rem;">
+                                                @lead.Customer?.EntityName
+                                            </h6>
+                                            <p class="card-text mb-1" style="font-size: 0.75rem;">
+                                                <strong>@lead.LeadNumber</strong>
+                                            </p>
+                                            <p class="card-text mb-1" style="font-size: 0.75rem;">
+                                                <i class="bi bi-box"></i> @lead.ProductInterest
+                                            </p>
+                                            <p class="card-text mb-1" style="font-size: 0.75rem;">
+                                                <i class="bi bi-currency-rupee"></i> @lead.LoanAmountRange
+                                            </p>
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <span class="badge @GetPriorityBadgeClass(lead.Priority)" style="font-size: 0.7rem;">
+                                                    @lead.Priority
+                                                </span>
+                                                @if (lead.NextFollowUpDate.HasValue)
+                                                {
+                                                    <small class="@GetFollowUpClass(lead.NextFollowUpDate.Value)" style="font-size: 0.7rem;">
+                                                        <i class="bi bi-calendar"></i> @lead.NextFollowUpDate.Value.ToString("dd MMM")
+                                                    </small>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <div class="text-center text-muted py-3">
+                                    <small>No leads</small>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Pipeline Summary -->
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header bg-secondary text-white">
+                        <h5 class="mb-0">Pipeline Summary</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <label class="text-muted small">Total Leads</label>
+                                <h4>@(leads?.Count ?? 0)</h4>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="text-muted small">Active Leads</label>
+                                <h4>@(leads?.Count(l => l.Status != LeadStatus.Converted && l.Status != LeadStatus.Dropped) ?? 0)</h4>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="text-muted small">Conversion Rate</label>
+                                <h4>@CalculateConversionRate()%</h4>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="text-muted small">Overdue Follow-ups</label>
+                                <h4 class="text-danger">@(leads?.Count(l => l.NextFollowUpDate.HasValue && l.NextFollowUpDate.Value.Date < DateTime.Today) ?? 0)</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private List<Lead>? leads;
+    private bool loading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadLeads();
+    }
+
+    private async Task LoadLeads()
+    {
+        loading = true;
+        try
+        {
+            // Mock data - replace with actual API call
+            leads = new List<Lead>();
+            // leads = await Http.GetFromJsonAsync<List<Lead>>("/api/leads");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading leads: {ex.Message}");
+            leads = new List<Lead>();
+        }
+        finally
+        {
+            loading = false;
+        }
+    }
+
+    private void NavigateToCreate()
+    {
+        Navigation.NavigateTo("/leads/create");
+    }
+
+    private void NavigateToList()
+    {
+        Navigation.NavigateTo("/leads");
+    }
+
+    private void ViewLead(Guid id)
+    {
+        Navigation.NavigateTo($"/leads/{id}");
+    }
+
+    private string GetStatusHeaderClass(LeadStatus status)
+    {
+        return status switch
+        {
+            LeadStatus.New => "bg-info",
+            LeadStatus.InProgress => "bg-warning",
+            LeadStatus.Documentation => "bg-primary",
+            LeadStatus.SubmittedToCredit => "bg-secondary",
+            LeadStatus.Dropped => "bg-danger",
+            LeadStatus.Converted => "bg-success",
+            _ => "bg-secondary"
+        };
+    }
+
+    private string GetPriorityBadgeClass(Priority priority)
+    {
+        return priority switch
+        {
+            Priority.High => "bg-danger",
+            Priority.Medium => "bg-warning",
+            Priority.Low => "bg-secondary",
+            _ => "bg-secondary"
+        };
+    }
+
+    private string GetFollowUpClass(DateTime followUpDate)
+    {
+        if (followUpDate.Date < DateTime.Today)
+        {
+            return "text-danger";
+        }
+        else if (followUpDate.Date == DateTime.Today)
+        {
+            return "text-warning";
+        }
+        return "text-muted";
+    }
+
+    private double CalculateConversionRate()
+    {
+        if (leads == null || !leads.Any())
+            return 0;
+
+        var converted = leads.Count(l => l.Status == LeadStatus.Converted);
+        return Math.Round((double)converted / leads.Count * 100, 1);
+    }
+}
