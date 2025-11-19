@@ -1,5 +1,5 @@
 @page "/leads/create"
-@page "/leads/edit/{id:guid}"
+@page "/leads/edit/{id:long}"
 @using SambhandhCRM.Core.Models
 @using SambhandhCRM.Core.Models.Enums
 @using System.Net.Http.Json
@@ -242,14 +242,14 @@
 
 @code {
     [Parameter]
-    public Guid? Id { get; set; }
+    public long? Id { get; set; }
 
     private Lead lead = new();
     private List<Customer>? customers;
     private bool loading = false;
     private bool saving = false;
 
-    private bool IsEdit => Id.HasValue && Id.Value != Guid.Empty;
+    private bool IsEdit => Id.HasValue && Id.Value != 0;
 
     protected override async Task OnInitializedAsync()
     {
@@ -263,17 +263,17 @@
         {
             lead = new Lead
             {
-                Id = Guid.NewGuid(),
+                Id = 0,
                 LeadNumber = GenerateLeadNumber(),
-                CreatedAt = DateTime.UtcNow,
-                Priority = Priority.Medium,
-                Status = LeadStatus.New
+                CreatedDate = DateTime.UtcNow,
+                Priority = "Medium",
+                Status = "New"
             };
 
             // Check for customerId in query string
             var uri = new Uri(Navigation.Uri);
             var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
-            if (Guid.TryParse(query["customerId"], out var customerId))
+            if (long.TryParse(query["customerId"], out var customerId))
             {
                 lead.CustomerId = customerId;
             }

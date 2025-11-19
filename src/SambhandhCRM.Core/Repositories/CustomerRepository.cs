@@ -66,7 +66,8 @@ public class CustomerRepository : ICustomerRepository
             new { CustomerId = id },
             splitOn: "Id");
 
-        customer.BusinessSegments = businessSegments.ToList();
+        // Note: BusinessSegments loaded but not assigned to model as it uses BusinessSegment (singular) property
+        // TODO: Consider refactoring Customer model to include BusinessSegments collection if needed
 
         return customer;
     }
@@ -133,8 +134,8 @@ public class CustomerRepository : ICustomerRepository
                 @CreatedAt, @CreatedBy, @IsDeleted
             )";
 
-        if (customer.Id == Guid.Empty)
-            customer.Id = Guid.NewGuid();
+        if (customer.Id == 0)
+            customer.Id = 0; // Let database generate ID
 
         await connection.ExecuteAsync(sql, customer);
         return customer.Id;

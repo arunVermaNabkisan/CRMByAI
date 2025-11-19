@@ -115,9 +115,9 @@
                                         </span>
                                     </td>
                                     <td>
-                                        @if (customer.BusinessSegments?.Any() == true)
+                                        @if (!string.IsNullOrEmpty(customer.BusinessSegment))
                                         {
-                                            <span>@string.Join(", ", customer.BusinessSegments.Select(bs => bs.BusinessSegment?.Name ?? ""))</span>
+                                            <span>@customer.BusinessSegment</span>
                                         }
                                     </td>
                                     <td>@customer.CreatedAt.ToString("dd MMM yyyy")</td>
@@ -165,8 +165,7 @@
             (string.IsNullOrEmpty(filterLegalConstitution) || c.LegalConstitution.ToString() == filterLegalConstitution) &&
             (string.IsNullOrEmpty(filterStatus) || c.Status.ToString() == filterStatus) &&
             (string.IsNullOrEmpty(filterSegment) ||
-             (c.BusinessSegments != null && c.BusinessSegments.Any(bs =>
-                bs.BusinessSegment != null && bs.BusinessSegment.Name.Contains(filterSegment, StringComparison.OrdinalIgnoreCase))))
+             (c.BusinessSegment != null && c.BusinessSegment.Contains(filterSegment, StringComparison.OrdinalIgnoreCase)))
         ) ?? Enumerable.Empty<Customer>();
 
     protected override async Task OnInitializedAsync()
@@ -198,12 +197,12 @@
         Navigation.NavigateTo("/customers/create");
     }
 
-    private void ViewCustomer(Guid id)
+    private void ViewCustomer(long id)
     {
         Navigation.NavigateTo($"/customers/{id}");
     }
 
-    private void EditCustomer(Guid id)
+    private void EditCustomer(long id)
     {
         Navigation.NavigateTo($"/customers/edit/{id}");
     }

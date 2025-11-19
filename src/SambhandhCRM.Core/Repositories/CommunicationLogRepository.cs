@@ -75,8 +75,8 @@ public class CommunicationLogRepository : ICommunicationLogRepository
                 @CreatedAt, @CreatedBy, @IsDeleted
             )";
 
-        if (communicationLog.Id == Guid.Empty)
-            communicationLog.Id = Guid.NewGuid();
+        if (communicationLog.Id == 0)
+            communicationLog.Id = 0; // Let database generate ID
 
         await connection.ExecuteAsync(sql, communicationLog);
         return communicationLog.Id;
