@@ -1,8 +1,8 @@
 @page "/customers"
 @using SambhandhCRM.Core.Models
 @using SambhandhCRM.Core.Models.Enums
-@using System.Net.Http.Json
-@inject HttpClient Http
+@using SambhandhCRM.Core.Repositories.Interfaces
+@inject ICustomerRepository CustomerRepository
 @inject NavigationManager Navigation
 @rendermode InteractiveServer
 
@@ -179,9 +179,8 @@
         loading = true;
         try
         {
-            // Mock data for now - replace with actual API call
-            customers = new List<Customer>();
-            // customers = await Http.GetFromJsonAsync<List<Customer>>("/api/customers");
+            var result = await CustomerRepository.GetAllAsync();
+            customers = result.ToList();
         }
         catch (Exception ex)
         {
