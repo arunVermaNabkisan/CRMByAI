@@ -1,11 +1,18 @@
 using SambhandhCRM.Web.Components;
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Components;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+// Add HttpClient for Blazor Server components
+builder.Services.AddScoped(sp => new HttpClient
+{
+    BaseAddress = new Uri(sp.GetRequiredService<NavigationManager>().BaseUri)
+});
 
 // Add API Controllers
 builder.Services.AddControllers()
