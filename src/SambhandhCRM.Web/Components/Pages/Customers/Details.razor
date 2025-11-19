@@ -296,7 +296,7 @@
                         </div>
                         <div class="mb-3">
                             <label class="text-muted small">Last Updated</label>
-                            <div class="fw-bold">@customer.UpdatedAt.ToString("dd MMM yyyy")</div>
+                            <div class="fw-bold">@(customer.UpdatedAt?.ToString("dd MMM yyyy") ?? "Never")</div>
                         </div>
                     </div>
                 </div>

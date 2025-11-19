@@ -121,7 +121,7 @@
                                         {
                                             @foreach (var rel in contact.CustomerRelationships.Take(2))
                                             {
-                                                <span class="badge bg-secondary me-1">@rel.Role</span>
+                                                <span class="badge bg-secondary me-1">@rel.RoleInOrganization</span>
                                             }
                                             @if (contact.CustomerRelationships.Count > 2)
                                             {
