@@ -25,7 +25,7 @@ public class LeadRepository : ILeadRepository
             WHERE l.IsDeleted = 0
             ORDER BY l.CreatedAt DESC";
 
-        var leadDictionary = new Dictionary<Guid, Lead>();
+        var leadDictionary = new Dictionary<long, Lead>();
 
         await connection.QueryAsync<Lead, Customer, Lead>(
             sql,
@@ -103,7 +103,7 @@ public class LeadRepository : ILeadRepository
             WHERE l.Status = @Status AND l.IsDeleted = 0
             ORDER BY l.CreatedAt DESC";
 
-        var leadDictionary = new Dictionary<Guid, Lead>();
+        var leadDictionary = new Dictionary<long, Lead>();
 
         await connection.QueryAsync<Lead, Customer, Lead>(
             sql,
@@ -133,7 +133,7 @@ public class LeadRepository : ILeadRepository
             WHERE l.AssignedToUserId = @UserId AND l.IsDeleted = 0
             ORDER BY l.CreatedAt DESC";
 
-        var leadDictionary = new Dictionary<Guid, Lead>();
+        var leadDictionary = new Dictionary<long, Lead>();
 
         await connection.QueryAsync<Lead, Customer, Lead>(
             sql,
@@ -175,8 +175,8 @@ public class LeadRepository : ILeadRepository
                 @CreatedAt, @CreatedBy, @IsDeleted
             )";
 
-        if (lead.Id == Guid.Empty)
-            lead.Id = Guid.NewGuid();
+        if (lead.Id == 0)
+            lead.Id = 0; // Let database generate ID
 
         if (string.IsNullOrEmpty(lead.LeadNumber))
             lead.LeadNumber = await GenerateLeadNumberAsync();

@@ -1,4 +1,4 @@
-@page "/customers/{id:guid}"
+@page "/customers/{id:long}"
 @using SambhandhCRM.Core.Models
 @using SambhandhCRM.Core.Models.Enums
 @using System.Net.Http.Json
@@ -140,15 +140,12 @@
                                 </div>
                             }
 
-                            @if (customer.BusinessSegments?.Any() == true)
+                            @if (!string.IsNullOrEmpty(customer.BusinessSegment))
                             {
                                 <div class="col-md-12">
-                                    <label class="text-muted small">Business Segments</label>
+                                    <label class="text-muted small">Business Segment</label>
                                     <div>
-                                        @foreach (var segment in customer.BusinessSegments)
-                                        {
-                                            <span class="badge bg-secondary me-1">@segment.BusinessSegment?.Name</span>
-                                        }
+                                        <span class="badge bg-secondary me-1">@customer.BusinessSegment</span>
                                     </div>
                                 </div>
                             }
@@ -348,7 +345,7 @@
 
 @code {
     [Parameter]
-    public Guid Id { get; set; }
+    public long Id { get; set; }
 
     private Customer? customer;
     private bool loading = true;
@@ -369,14 +366,14 @@
             {
                 Id = Id,
                 EntityName = "Sample Customer",
-                LegalConstitution = LegalConstitution.Company,
+                LegalConstitution = "Company",
                 PANNumber = "ABCDE1234F",
                 RegisteredAddress = "123 Main Street",
                 RegisteredPinCode = "400001",
                 PrimaryPhone = "9876543210",
-                Status = CustomerStatus.Customer,
-                CreatedAt = DateTime.UtcNow.AddDays(-30),
-                UpdatedAt = DateTime.UtcNow
+                Status = "Customer",
+                CreatedDate = DateTime.UtcNow.AddDays(-30),
+                ModifiedDate = DateTime.UtcNow
             };
         }
         finally

@@ -62,8 +62,8 @@ public class ContactPersonRepository : IContactPersonRepository
                 @CreatedAt, @CreatedBy, @IsDeleted
             )";
 
-        if (contactPerson.Id == Guid.Empty)
-            contactPerson.Id = Guid.NewGuid();
+        if (contactPerson.Id == 0)
+            contactPerson.Id = 0; // Let database generate ID
 
         await connection.ExecuteAsync(sql, contactPerson);
         return contactPerson.Id;

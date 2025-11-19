@@ -1,5 +1,5 @@
 @page "/customers/create"
-@page "/customers/edit/{id:guid}"
+@page "/customers/edit/{id:long}"
 @using SambhandhCRM.Core.Models
 @using SambhandhCRM.Core.Models.Enums
 @using System.Net.Http.Json
@@ -331,14 +331,14 @@
 
 @code {
     [Parameter]
-    public Guid? Id { get; set; }
+    public long? Id { get; set; }
 
     private Customer customer = new();
     private bool loading = false;
     private bool saving = false;
     private string selectedSegment = "";
 
-    private bool IsEdit => Id.HasValue && Id.Value != Guid.Empty;
+    private bool IsEdit => Id.HasValue && Id.Value != 0;
 
     protected override async Task OnInitializedAsync()
     {
@@ -350,9 +350,9 @@
         {
             customer = new Customer
             {
-                Id = Guid.NewGuid(),
-                CreatedAt = DateTime.UtcNow,
-                Status = CustomerStatus.Prospect
+                Id = 0,
+                CreatedDate = DateTime.UtcNow,
+                Status = "Prospect"
             };
         }
     }
